@@ -116,11 +116,18 @@ public class Army implements Serializable, Placeable {
 	/**
 	 * Let this army disappear from the forest.
 	 */
-	protected void kill() {
-		if (!isEmpty())
-			throw new NonEmptyArmyKilledException();
+	protected void remove() {
 		forest.getPosition(position).removeArmy(this);
 		owner.removeArmy(this);
+	}
+
+	/**
+	 * Checks if there are no units left in the army.
+	 * @return Is the army empty? 
+	 */
+	public boolean isEmpty() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	/**
@@ -156,7 +163,7 @@ public class Army implements Serializable, Placeable {
 		try {
 			for (Troop troop : other.getTroops())
 				addTroop(troop);
-			other.kill();
+			other.remove();
 		} catch (InvalidLevelsArrayException ex) {
 			ex.printStackTrace();
 			System.exit(1);
@@ -397,9 +404,9 @@ public class Army implements Serializable, Placeable {
 					if (enemyTroop.getTotal() <= 0)
 						enemy.troops.remove(enemyTroop);
 					if (getTotal() <= 0)
-						kill();
+						remove();
 					if (enemy.getTotal() <= 0)
-						enemy.kill();
+						enemy.remove();
 					break;
 				}
 				randomIndex -= troopsNumber;

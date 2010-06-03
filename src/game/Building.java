@@ -159,7 +159,7 @@ public class Building implements Serializable, Placeable {
 						ex.printStackTrace();
 						System.exit(1);
 					}
-					tmpArmy.kill();
+					tmpArmy.remove();
 				} else {
 					newArmy = tmpArmy;
 				}
