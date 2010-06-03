@@ -1,4 +1,5 @@
-package game;
+package position;
+
 
 
 public class InvalidDirectionException extends PositionException {

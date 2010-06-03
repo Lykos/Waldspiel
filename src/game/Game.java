@@ -5,13 +5,18 @@ import humanPlayer.HumanPlayer;
 import java.io.Serializable;
 import java.util.LinkedList;
 
+import position.Forest;
+import position.Position;
+
+import army.Army;
+
 import data.*;
 import dataLoader.DataLoader;
 import dataLoader.StupidDataLoader;
 
 public class Game implements Serializable, Runnable, GameDataContainer {
-	public static final long serialVersionUID=1L;
-	
+	public static final long serialVersionUID = 1L;
+
 	private UnitType[] unitTypes;
 	private Forest forest;
 	private LinkedList<Side> sides, losers;
@@ -21,32 +26,32 @@ public class Game implements Serializable, Runnable, GameDataContainer {
 	private ResearchType[] researchTypes;
 	private SpecialRule[] specialRules;
 	private int turn;
-	
+
 	public static void main(String[] args) {
 		Game game = new Game(2);
 		new Thread(game).start();
 	}
-	
+
 	public RessourceType[] getRessourceTypes() {
 		return ressourceTypes;
 	}
-	
+
 	public SpecialRule[] getSpecialRules() {
 		return specialRules;
 	}
-	
+
 	public BuildingType[] getBuildingTypes() {
 		return buildingTypes;
 	}
-	
+
 	public ResearchType[] getResearchTypes() {
 		return researchTypes;
 	}
-	
+
 	public UnitType[] getUnitTypes() {
 		return unitTypes;
 	}
-	
+
 	public Game(int players) {
 		LinkedList<Position> starts = new LinkedList<Position>();
 		sides = new LinkedList<Side>();
@@ -61,8 +66,8 @@ public class Game implements Serializable, Runnable, GameDataContainer {
 		unitTypes = dataLoader.loadUnitTypes();
 		researchTypes = dataLoader.loadResearchTypes();
 		buildingTypes = dataLoader.loadBuildingTypes();
-		for (int p=0;p<players;p++) {
-			People randomPeople = peoples[(int) (Math.random()*peoples.length)];
+		for (int p = 0; p < players; p++) {
+			People randomPeople = peoples[(int) (Math.random() * peoples.length)];
 			boolean needsNew = true;
 			Position start = null;
 			while (needsNew) {
@@ -73,12 +78,13 @@ public class Game implements Serializable, Runnable, GameDataContainer {
 						needsNew = true;
 			}
 			Player player = new HumanPlayer();
-			Side side = new Side("Player " + p, true, randomPeople, player, start);
+			Side side = new Side("Player " + p, true, randomPeople, player,
+					start);
 			sides.add(side);
 			player.setSide(side);
 		}
-	}	
-	
+	}
+
 	public void run() {
 		for (Side side : sides)
 			side.getPlayer().start();
@@ -106,27 +112,28 @@ public class Game implements Serializable, Runnable, GameDataContainer {
 			}
 		}
 	}
-	
+
 	public int getTurn() {
 		return turn;
 	}
-	
-	protected Forest getForest() {
+
+	public Forest getForest() {
 		return forest;
 	}
-	
-	protected void sideLoses(Side side) {
+
+	public void sideLoses(Side side) {
 		losers.add(side);
 		sides.remove(side);
 	}
-	
+
 	public LinkedList<Side> getSides() {
 		return sides;
 	}
-	
+
 	public UnitType getWorker(People people) {
 		for (UnitType unit : unitTypes) {
-			if (unit.hasSpecialRule(SpecialRule.WORKER) && unit.getPeople() == people)
+			if (unit.hasSpecialRule(SpecialRule.WORKER)
+					&& unit.getPeople() == people)
 				return unit;
 		}
 		return null;

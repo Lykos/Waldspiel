@@ -3,6 +3,15 @@ package game;
 import java.io.Serializable;
 import java.util.LinkedList;
 
+import position.Forest;
+import position.Placeable;
+import position.Position;
+
+import army.Army;
+import army.DifferentPositionException;
+import army.InvalidLevelsArrayException;
+import army.Troop;
+
 import data.BuildingType;
 import data.ResearchType;
 import data.UnitType;
@@ -19,11 +28,11 @@ public class Building implements Serializable, Placeable {
 	
 	private static Forest forest;
 	
-	protected static void setForest(Forest newForest) {
+	public static void setForest(Forest newForest) {
 		forest = newForest;
 	}
 	
-	protected static void build(BuildingType type, Position position, Side owner) throws NegativeRessourceException, IsAlreadyBuildException {
+	public static void build(BuildingType type, Position position, Side owner) throws NegativeRessourceException, IsAlreadyBuildException {
 		new Building(type, position, owner);
 		owner.pay(type.getCost());
 	}
@@ -35,7 +44,7 @@ public class Building implements Serializable, Placeable {
 	private LinkedList<Integer> recruitments;
 	private LinkedList<Integer> researchGoals;
 	
-	protected Building(BuildingType type, Position position, Side owner) throws IsAlreadyBuildException {
+	public Building(BuildingType type, Position position, Side owner) throws IsAlreadyBuildException {
 		researchGoals = new LinkedList<Integer>();
 		recruitments = new LinkedList<Integer>();
 		this.type = type;
@@ -76,7 +85,7 @@ public class Building implements Serializable, Placeable {
 		return type.getCost().mult(factor);
 	}
 	
-	protected void produce() {
+	public void produce() {
 		for (int i=0;i<level+1;i++) {
 			if (owner.canPay(type.getRessourcesNeeded())) {
 				int improvementLevel = owner.getProductionLevel(type.getProductionImprovementId());
@@ -92,23 +101,23 @@ public class Building implements Serializable, Placeable {
 		}
 	}
 	
-	protected void levelUp() throws NegativeRessourceException {
+	public void levelUp() throws NegativeRessourceException {
 		owner.pay(getLevelUpCost());
 		level++;
 		hitpoints = getMaxHitpoints();
 		owner.giveRessources(type.getDirectProduction());
 	}
 	
-	protected void repair() {
+	public void repair() {
 		hitpoints = getMaxHitpoints();
 	}
 	
-	protected void newTurn() {
+	public void newTurn() {
 		research();
 		produce();
 	}
 	
-	protected void endTurn() {
+	public void endTurn() {
 		recruit();
 	}
 	
@@ -122,7 +131,7 @@ public class Building implements Serializable, Placeable {
 			recruitments.add(researchGoal);
 	}
 	
-	protected void recruit() {
+	public void recruit() {
 		Army newArmy = null;
 		for (int i=0;i<level+1;i++) {
 			int recruitmentIndex = -1;
@@ -173,7 +182,7 @@ public class Building implements Serializable, Placeable {
 		}
 	}
 	
-	protected void research() {
+	public void research() {
 		ResearchType research=null;
 		for (int i=0;i<level;i++) {
 			int researchIndex = -1;
@@ -211,7 +220,7 @@ public class Building implements Serializable, Placeable {
 		}
 	}
 	
-	protected void destroy() {
+	public void destroy() {
 		owner.removeBuilding(this);
 		forest.getPosition(position).removeBuilding(this);
 	}

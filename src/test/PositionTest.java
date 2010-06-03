@@ -1,9 +1,9 @@
 package test;
 
-import game.InvalidDirectionException;
-import game.InvalidPositionException;
-import game.Position;
-import game.PositionException;
+import position.InvalidDirectionException;
+import position.InvalidPositionException;
+import position.Position;
+import position.PositionException;
 import junit.framework.*;
 /**
  * A class to test if the Position class works correctly.

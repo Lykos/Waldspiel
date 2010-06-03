@@ -1,7 +1,13 @@
-package game;
+package position;
+
+import game.Building;
+import game.IsAlreadyBuildException;
+import game.Side;
 
 import java.io.Serializable;
 import java.util.LinkedList;
+
+import army.Army;
 
 public class Tree implements Serializable {
 	public static final long serialVersionUID=1L;
@@ -22,7 +28,7 @@ public class Tree implements Serializable {
 		this.building = building;
 	}
 	
-	protected Building getBuilding() {
+	public Building getBuilding() {
 		return building;
 	}
 	
@@ -72,7 +78,7 @@ public class Tree implements Serializable {
 		return building != null;
 	}
 
-	protected String lookAt(Side side) {
+	public String lookAt(Side side) {
 		String string = new String();
 		if (building != null) {
 			if (building.getOwner() == side) {
@@ -91,7 +97,7 @@ public class Tree implements Serializable {
 		return string;
 	}
 	
-	protected int lookAtInt(Side side) {
+	public int lookAtInt(Side side) {
 		Side firstSide = null;
 		for (Army army : armies) {
 			if (firstSide == null) {
@@ -114,7 +120,7 @@ public class Tree implements Serializable {
 		return NOTHING;
 	}
 
-	protected String getSpyed() {
+	public String getSpyed() {
 		String string = new String();
 		if (building != null)
 			string += building.toString() + "\n";

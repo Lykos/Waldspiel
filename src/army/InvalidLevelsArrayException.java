@@ -1,4 +1,6 @@
-package game;
+package army;
+
+import game.ForestException;
 
 
 public class InvalidLevelsArrayException extends ForestException {

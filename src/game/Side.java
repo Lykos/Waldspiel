@@ -3,6 +3,21 @@ package game;
 import java.io.Serializable;
 import java.util.LinkedList;
 
+import position.ForestMap;
+import position.Position;
+
+import army.AlreadyAtDestinationException;
+import army.Army;
+import army.Hero;
+import army.InvalidBuildException;
+import army.InvalidDestroyException;
+import army.InvalidHuntException;
+import army.InvalidLevelException;
+import army.InvalidMagicException;
+import army.InvalidRepairException;
+import army.InvalidShootException;
+import army.Troop;
+
 import data.People;
 import data.ResearchType;
 import data.BuildingType;
@@ -11,9 +26,9 @@ import data.UnitType;
 public class Side implements Serializable {
 	public static final long serialVersionUID=1L;
 	
-	protected static Game gameGame;
-	protected static GameDataContainer game;
-	protected static void setGame(Game newGame) {
+	public static Game gameGame;
+	public static GameDataContainer game;
+	public static void setGame(Game newGame) {
 		game = newGame;
 		gameGame = newGame;
 	}
@@ -33,7 +48,7 @@ public class Side implements Serializable {
 	private int lives;
 	private Position start;
 	
-	protected Side(String name, boolean human, People people,
+	public Side(String name, boolean human, People people,
 			Player player, Position start) {
 		this.name = name;
 		this.human = human;
@@ -105,7 +120,7 @@ public class Side implements Serializable {
 		map.removeArmy(position, army.getSightRange());
 	}
 	
-	protected void giveRessources(Ressources ressources) {
+	public void giveRessources(Ressources ressources) {
 		this.ressources.add(ressources);
 	}
 	
@@ -113,7 +128,7 @@ public class Side implements Serializable {
 		return buildings.contains(building);
 	}
 	
-	protected void addBuilding(Building building) {
+	public void addBuilding(Building building) {
 		buildings.add(building);
 		map.addBuilding(building.getPosition(), building.getSightRange());
 	}
@@ -123,11 +138,11 @@ public class Side implements Serializable {
 		map.removeBuilding(building.getPosition(), building.getSightRange());
 	}
 	
-	protected void pay(Ressources cost) throws NegativeRessourceException {
+	public void pay(Ressources cost) throws NegativeRessourceException {
 		ressources.sub(cost);
 	}
 	
-	protected void newTurn() {
+	public void newTurn() {
 		if (kingDead)
 			newKing();
 		for (Building building : buildings)
@@ -162,7 +177,7 @@ public class Side implements Serializable {
 	
 	
 	
-	protected void newKing() {
+	public void newKing() {
 		king = new Hero(people.getKing(), 2, name);
 		LinkedList<Troop> heroTroops = new LinkedList<Troop>();
 		UnitType worker = game.getWorker(people);
@@ -170,7 +185,7 @@ public class Side implements Serializable {
 		Army.buildArmy(heroTroops, start, this);
 	}
 	
-	protected void addArmy(Army army) {
+	public void addArmy(Army army) {
 		armies.add(army);
 		map.addArmy(army.getPosition(), army.getSightRange());
 	}
@@ -218,11 +233,11 @@ public class Side implements Serializable {
 		return 0;
 	}
 
-	protected void addResearch(Research research) {
+	public void addResearch(Research research) {
 		researchs.add(research);
 	}
 
-	protected void levelUpResearch(ResearchType researchType) {
+	public void levelUpResearch(ResearchType researchType) {
 		for (Research research : researchs) {
 			if (researchType == research.getType())
 				research.levelUp();
@@ -276,36 +291,36 @@ public class Side implements Serializable {
 		army.setDestination(destination);
 	}
 	
-	public boolean moveArmytoDestination(Army army) {
-		return army.moveToDestination();	
+	public void moveArmytoDestination(Army army) throws AlreadyAtDestinationException {
+		army.moveToDestination();	
 	}
 	
-	public boolean armyBuilds(Army army, BuildingType building) {
-		return army.build(building);			
+	public void armyBuilds(Army army, BuildingType building) throws InvalidBuildException {
+		army.build(building);			
 	}
 	
-	public boolean armyLevels(Army army) {
-		return army.levelBuilding();
+	public void armyLevels(Army army) throws InvalidLevelException {
+		army.levelBuilding();
+}
+	
+	public void armyRepairs(Army army) throws InvalidRepairException {
+		army.repair();
 	}
 	
-	public boolean armyRepairs(Army army) {
-		return army.repair();
+	public void armyHunts(Army army) throws InvalidHuntException {
+		army.hunt();
 	}
 	
-	public boolean armyHunts(Army army) {
-		return army.hunt();
+	public void armyUsesMagic(Army army) throws InvalidMagicException {
+		army.useMagic();
 	}
 	
-	public boolean armyUsesMagic(Army army) {
-		return army.useMagic();
-	}
-	
-	public boolean armyShoots(Army army) {
-		return army.shoot();
+	public void armyShoots(Army army) throws InvalidShootException {
+		army.shoot();
 	}
 
-	public boolean armyDestroys(Army army) {
-		return army.destroy();
+	public void armyDestroys(Army army) throws InvalidDestroyException {
+		army.destroy();
 	}
 
 	public BuildingType[] getBuildableTypes() {

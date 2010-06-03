@@ -1,6 +1,9 @@
-package game;
+package position;
 
 import java.io.Serializable;
+
+
+import army.Army;
 
 public class Forest implements Serializable {
 	public static final long serialVersionUID=1L;
@@ -13,7 +16,7 @@ public class Forest implements Serializable {
 				field[x][y] = new Tree();
 	}
 	
-	protected int[][] move(Army army, int direction) throws InvalidDirectionException, InvalidPositionException {
+	public int[][] move(Army army, int direction) throws InvalidDirectionException, InvalidPositionException {
 		Position position = army.getPosition();
 		getPosition(position).removeArmy(army);
 		int[][] result = position.goDirection(direction, army.getSightRange());
@@ -21,11 +24,11 @@ public class Forest implements Serializable {
 		return result;
 	}
 	
-	protected Tree getPosition(Position position) {
+	public Tree getPosition(Position position) {
 		return field[position.getX()][position.getY()];
 	}
 	
-	protected Tree getPosition(int x, int y) {
+	public Tree getPosition(int x, int y) {
 		return field[x][y];
 	}
 }

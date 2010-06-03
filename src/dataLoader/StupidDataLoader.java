@@ -2,9 +2,10 @@ package dataLoader;
 
 import game.RessourceAmount;
 import game.Ressources;
-import game.Troop;
 
 import java.util.HashMap;
+
+import army.Troop;
 
 import data.*;
 

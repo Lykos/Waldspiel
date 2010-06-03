@@ -1,6 +1,7 @@
-package game;
+package army;
 
 import java.io.Serializable;
+
 import data.UnitType;;
 
 public class Hero implements Serializable {

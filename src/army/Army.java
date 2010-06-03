@@ -1,7 +1,19 @@
-package game;
+package army;
+
+import game.Building;
+import game.ForestException;
+import game.Ressources;
+import game.Side;
 
 import java.io.Serializable;
 import java.util.LinkedList;
+
+import position.Forest;
+import position.InvalidDirectionException;
+import position.InvalidPositionException;
+import position.Placeable;
+import position.Position;
+import position.PositionException;
 
 import data.UnitType;
 import data.BuildingType;
@@ -25,7 +37,7 @@ public class Army implements Serializable, Placeable {
 	 * 
 	 * @param newForest
 	 */
-	protected static void setForest(Forest newForest) {
+	public static void setForest(Forest newForest) {
 		forest = newForest;
 	}
 
@@ -40,8 +52,8 @@ public class Army implements Serializable, Placeable {
 	 *            The owner of this army.
 	 * @return The new army.
 	 */
-	protected static Army buildArmy(LinkedList<Troop> troops,
-			Position position, Side owner) {
+	public static Army buildArmy(LinkedList<Troop> troops, Position position,
+			Side owner) {
 		Army army = new Army(troops, position, owner);
 		forest.getPosition(position).addArmy(army);
 		army.getOwner().addArmy(army);
@@ -79,7 +91,7 @@ public class Army implements Serializable, Placeable {
 		return speed;
 	}
 
-	protected Army copy(Position position, Side owner) {
+	public Army copy(Position position, Side owner) {
 		LinkedList<Troop> new_troops = new LinkedList<Troop>();
 		for (int i = 0; i < troops.size(); i++)
 			new_troops.add(troops.get(i));
@@ -113,14 +125,14 @@ public class Army implements Serializable, Placeable {
 	 * @param destination
 	 *            The new destination.
 	 */
-	protected void setDestination(Position destination) {
+	public void setDestination(Position destination) {
 		this.destination = destination;
 	}
 
 	/**
 	 * Let this army disappear from the forest.
 	 */
-	protected void remove() {
+	public void remove() {
 		forest.getPosition(position).removeArmy(this);
 		owner.removeArmy(this);
 	}
@@ -137,7 +149,7 @@ public class Army implements Serializable, Placeable {
 	/**
 	 * Merge with all friends at the same position.
 	 */
-	protected void takeTogether() {
+	public void takeTogether() {
 		LinkedList<Army> friends = forest.getPosition(position)
 				.getFriends(this);
 		for (Army friend : friends) {
@@ -161,7 +173,7 @@ public class Army implements Serializable, Placeable {
 	 * @throws DifferentPositionException
 	 *             if the other army is at a different position.
 	 */
-	protected void merge(Army other) throws DifferentPositionException {
+	public void merge(Army other) throws DifferentPositionException {
 		if (other.getPosition() != position)
 			throw new DifferentPositionException(this, other);
 		try {
@@ -182,7 +194,7 @@ public class Army implements Serializable, Placeable {
 	 * @throws InvalidLevelsArrayException
 	 *             if the format of a troop is wrong.
 	 */
-	protected void addTroop(Troop troop) throws InvalidLevelsArrayException {
+	public void addTroop(Troop troop) throws InvalidLevelsArrayException {
 		Troop existingTroop = findUnit(troop.getUnit());
 		if (existingTroop == null) {
 			troops.add(troop);
@@ -203,7 +215,7 @@ public class Army implements Serializable, Placeable {
 	 * @param troop
 	 *            The troop to be removed.
 	 */
-	protected void removeTroop(Troop troop) {
+	public void removeTroop(Troop troop) {
 		troops.remove(troop);
 		if (speed == troop.getMinSpeed())
 			calculateSpeed();
@@ -224,7 +236,7 @@ public class Army implements Serializable, Placeable {
 	 * @throws InvalidPositionException
 	 *             If this results in an invalid position.
 	 */
-	protected int[][] move(int direction) throws InvalidDirectionException,
+	public int[][] move(int direction) throws InvalidDirectionException,
 			InvalidPositionException {
 		// TODO: Improve this!
 		if (steps <= 0)
@@ -241,7 +253,7 @@ public class Army implements Serializable, Placeable {
 	 * @throws AlreadyAtDestinationException
 	 *             if the army is already there.
 	 */
-	protected void moveToDestination() throws AlreadyAtDestinationException {
+	public void moveToDestination() throws AlreadyAtDestinationException {
 		int direction = position.toDestination(destination);
 		if (direction != Position.STAY) {
 			try {
@@ -260,7 +272,7 @@ public class Army implements Serializable, Placeable {
 	/**
 	 * Start a new turn ant update the corresponding values.
 	 */
-	protected void newTurn() {
+	public void newTurn() {
 		steps = speed;
 		isFleeing = false;
 		canBuild = true;
@@ -274,7 +286,7 @@ public class Army implements Serializable, Placeable {
 	/**
 	 * End a new turn and fight if necessary.
 	 */
-	protected void endTurn() {
+	public void endTurn() {
 		takeTogether();
 		LinkedList<Army> enemies = forest.getPosition(position).getEnemies(
 				owner);
@@ -411,7 +423,7 @@ public class Army implements Serializable, Placeable {
 	 * @throws NoWorkerException
 	 *             if there are no workers.
 	 */
-	protected void removeWorker() throws NoWorkerException {
+	public void removeWorker() throws NoWorkerException {
 		for (Troop troop : troops) {
 			if (troop.getUnit().hasSpecialRule(SpecialRule.WORKER)) {
 				if (!troop.removeOne())
@@ -432,7 +444,7 @@ public class Army implements Serializable, Placeable {
 	 * @throws InvalidBuildException
 	 *             If the army can't build this.
 	 */
-	protected void build(BuildingType building) throws InvalidBuildException {
+	public void build(BuildingType building) throws InvalidBuildException {
 		if (!canBuild(building)) {
 			throw new InvalidBuildException();
 		}
@@ -456,7 +468,7 @@ public class Army implements Serializable, Placeable {
 	 *             If the army is not able to level this building.
 	 * 
 	 */
-	protected void levelBuilding() throws InvalidLevelException {
+	public void levelBuilding() throws InvalidLevelException {
 		if (!canLevel()) {
 			throw new InvalidLevelException();
 		}
@@ -491,7 +503,7 @@ public class Army implements Serializable, Placeable {
 	 * @param enemies
 	 *            The other army to fight against.
 	 */
-	protected void fight(LinkedList<Army> enemies) {
+	public void fight(LinkedList<Army> enemies) {
 		int enemyTroops = 0;
 		for (Army enemy : enemies) {
 			enemyTroops += enemy.numTroops();
@@ -538,7 +550,7 @@ public class Army implements Serializable, Placeable {
 	 * @param enemyNumber
 	 *            The number of enemies that were fought.
 	 */
-	protected void levelUp(int enemyNumber) {
+	public void levelUp(int enemyNumber) {
 		int ownNumber = getTotal();
 		if (ownNumber <= 0)
 			return;
@@ -567,7 +579,7 @@ public class Army implements Serializable, Placeable {
 	 * 
 	 * @return
 	 */
-	protected Army split() {
+	public Army split() {
 		if (!canFormate())
 			return null;
 		canFormate = false;
@@ -583,44 +595,46 @@ public class Army implements Serializable, Placeable {
 	/**
 	 * Repair the building here.
 	 * 
-	 * @return Did it succeed?
+	 * @throws InvalidRepairException
+	 *             if the army actually isn't allow to repair right now.
 	 */
-	protected boolean repair() {
+	public void repair() throws InvalidRepairException {
 		if (!canBuild())
-			return false;
+			throw new InvalidRepairException();
 		canBuild = false;
 		canFormate = false;
 		steps = 0;
 		forest.getPosition(position).getBuilding().repair();
-		return true;
 	}
 
 	/**
 	 * Use magic.
 	 * 
 	 * @return Did it succeed?
+	 * @throws InvalidMagicException
+	 *             if the army isn't allowed to use magic right now.
 	 */
-	protected boolean useMagic() {
+	public void useMagic() throws InvalidMagicException {
 		if (!canUseMagic())
-			return false;
+			throw new InvalidMagicException();
 		canUseMagic = false;
 		// TODO: Implement this.
-		return true;
 	}
 
 	/**
 	 * Hunt food.
 	 * 
 	 * @return Did it succeed?
+	 * @throws InvalidHuntException
+	 *             if the army isn't allowed to hunt right now.
 	 */
-	protected boolean hunt() {
+	public void hunt() throws InvalidHuntException {
 		if (!canHunt())
-			return false;
+			throw new InvalidHuntException();
 		canHunt = false;
 		canFormate = false;
 		steps = 0;
 		// TODO: Implement this.
-		return true;
 	}
 
 	/**
@@ -683,25 +697,27 @@ public class Army implements Serializable, Placeable {
 	 * Let all ranged units shoot.
 	 * 
 	 * @return Did it succeed?
+	 * @throws InvalidShootException if the army actually isn't allowed to shoot right now.
 	 */
-	protected boolean shoot() {
+	public void shoot() throws InvalidShootException {
 		if (!canShoot())
-			return false;
+			throw new InvalidShootException();
 		canShoot = false;
 		canFormate = false;
 		steps = 0;
 		// TODO: Implement this.
-		return true;
 	}
 
 	/**
 	 * Destroy the enemy building here.
 	 * 
 	 * @return Did it succeed?
+	 * @throws InvalidDestroyException
+	 *             if the army isn't actually allowed to destroy.
 	 */
-	protected boolean destroy() {
+	public boolean destroy() throws InvalidDestroyException {
 		if (!canDestroy())
-			return false;
+			throw new InvalidDestroyException();
 		canDestroy = false;
 		canFormate = false;
 		steps = 0;
@@ -728,6 +744,7 @@ public class Army implements Serializable, Placeable {
 	 * @return The informations collected.
 	 */
 	public String spy(int x, int y) {
+		// TODO: Don't return a string.
 		try {
 			Position spyPosition = new Position(x, y);
 			if (getSpyRange() >= position.stepsTo(spyPosition))

@@ -1,11 +1,11 @@
 package test;
 
-import game.Army;
+import position.ForestMap;
+import position.InvalidPositionException;
+import position.Position;
+import army.Army;
 import game.Building;
-import game.ForestMap;
 import game.Game;
-import game.InvalidPositionException;
-import game.Position;
 import game.Side;
 import junit.framework.*;
 

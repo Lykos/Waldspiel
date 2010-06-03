@@ -1,10 +1,11 @@
-package game;
+package position;
+
 
 import java.io.Serializable;
 
 /**
  * this class represents the position of an army/a building
- * and contains certain vectorgeometric methods and some more
+ * and contains certain vector geometric methods and some more
  * specific stuff for the forest map.
  * @author bernhard
  */
@@ -73,7 +74,7 @@ public class Position implements Serializable {
 	 * @throws InvalidDirectionException if this direction does not exist.
 	 * @throws InvalidPositionException if this would reach a position outside the map.
 	 */
-	protected void goDirection(int direction) throws InvalidDirectionException, InvalidPositionException {
+	public void goDirection(int direction) throws InvalidDirectionException, InvalidPositionException {
 		if (direction < 0 || direction > 7)
 			throw (new InvalidDirectionException(direction));
 		x += directionsDX[direction];
@@ -218,7 +219,7 @@ public class Position implements Serializable {
 	 * @param destination the other point
 	 * @return integer value of the distance
 	 */
-	protected int stepsTo(Position destination) {
+	public int stepsTo(Position destination) {
 		return stepsTo(destination.getX(), destination.getY());
 	}
 	

@@ -1,4 +1,6 @@
-package game;
+package position;
+
+import game.ForestException;
 
 
 

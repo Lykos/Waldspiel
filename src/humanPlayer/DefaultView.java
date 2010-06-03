@@ -1,8 +1,6 @@
 package humanPlayer;
 
-import game.Army;
 import game.Building;
-import game.ForestMap;
 import game.Ressources;
 
 import java.awt.event.*;
@@ -11,10 +9,14 @@ import java.io.Serializable;
 import java.util.Observable;
 import java.util.Observer;
 
-import game.Position;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
+
+import position.ForestMap;
+import position.Position;
+
+import army.Army;
 
 public class DefaultView extends JFrame implements View, Serializable {
 

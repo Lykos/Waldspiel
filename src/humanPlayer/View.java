@@ -1,14 +1,16 @@
 package humanPlayer;
 
-import game.Army;
 import game.Building;
-import game.ForestMap;
 import game.Ressources;
 
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 
 import javax.swing.event.ListSelectionListener;
+
+import position.ForestMap;
+
+import army.Army;
 
 public interface View {
 

@@ -10,13 +10,15 @@ import java.io.Serializable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import position.InvalidPositionException;
+import position.Position;
+
+import army.Army;
+
 import data.BuildingType;
 
-import game.Army;
 import game.Building;
-import game.InvalidPositionException;
 import game.Player;
-import game.Position;
 import game.Side;
 
 public class HumanPlayer implements Serializable, Player {

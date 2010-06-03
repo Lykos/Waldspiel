@@ -1,7 +1,10 @@
-package game;
+package army;
+
 
 import java.io.Serializable;
 import java.util.LinkedList;
+
+import position.Position;
 
 import data.RangedUnitType;
 import data.SpecialRule;
