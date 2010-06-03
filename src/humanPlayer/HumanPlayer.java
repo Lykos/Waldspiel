@@ -14,6 +14,7 @@ import data.BuildingType;
 
 import game.Army;
 import game.Building;
+import game.InvalidPositionException;
 import game.Player;
 import game.Position;
 import game.Side;
@@ -130,7 +131,13 @@ public class HumanPlayer implements Serializable, Player {
 						}
 					}
 					if (!armyFound && activatedArmy != null) {
-						side.setArmyDestination(activatedArmy, h, v);
+						try {
+							side.setArmyDestination(activatedArmy, new Position(h, v));
+						} catch (InvalidPositionException e1) {
+							// TODO Auto-generated catch block. Try to find a way to handle this.
+							e1.printStackTrace();
+							System.exit(1);
+						}
 						while (!activatedArmy.atDestination() && activatedArmy.getSteps() > 0) {
 							side.moveArmytoDestination(activatedArmy);
 						}

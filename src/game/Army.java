@@ -7,11 +7,14 @@ import data.UnitType;
 import data.BuildingType;
 import data.SpecialRule;
 
+/**
+ * This is the Army class. Most of the game goes through this class, because
+ * this is what the player controls.
+ * 
+ * @author bernhard
+ */
 public class Army implements Serializable, Placeable {
-	/**
-	 * This is the Army class. Most of the game goes through this class, because
-	 * this is what the player controls.
-	 * **/
+
 	public static final long serialVersionUID = 1L;
 	public static final int FLEEINGBONUS = 4;
 
@@ -104,13 +107,14 @@ public class Army implements Serializable, Placeable {
 		return null;
 	}
 
-	protected boolean setDestination(int x, int y) {
-		try {
-			destination = new Position(x, y);
-		} catch (InvalidPositionException ex) {
-			return false;
-		}
-		return true;
+	/**
+	 * Set the destination of this army.
+	 * 
+	 * @param destination
+	 *            The new destination.
+	 */
+	protected void setDestination(Position destination) {
+		this.destination = destination;
 	}
 
 	/**
@@ -123,11 +127,11 @@ public class Army implements Serializable, Placeable {
 
 	/**
 	 * Checks if there are no units left in the army.
-	 * @return Is the army empty? 
+	 * 
+	 * @return Is the army empty?
 	 */
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+		return getTotal() == 0;
 	}
 
 	/**
@@ -172,8 +176,11 @@ public class Army implements Serializable, Placeable {
 
 	/**
 	 * Add a new troop to this army.
-	 * @param troop The new troop.
-	 * @throws InvalidLevelsArrayException if the format of a troop is wrong.
+	 * 
+	 * @param troop
+	 *            The new troop.
+	 * @throws InvalidLevelsArrayException
+	 *             if the format of a troop is wrong.
 	 */
 	protected void addTroop(Troop troop) throws InvalidLevelsArrayException {
 		Troop existingTroop = findUnit(troop.getUnit());
@@ -189,10 +196,12 @@ public class Army implements Serializable, Placeable {
 			existingTroop.merge(troop);
 		}
 	}
-	
+
 	/**
 	 * Remove a given troop from the army.
-	 * @param troop The troop to be removed.
+	 * 
+	 * @param troop
+	 *            The troop to be removed.
 	 */
 	protected void removeTroop(Troop troop) {
 		troops.remove(troop);
@@ -204,8 +213,20 @@ public class Army implements Serializable, Placeable {
 			calculateSightRange();
 	}
 
+	/**
+	 * Move into a given direction.
+	 * 
+	 * @param direction
+	 *            The direction where the army should move.
+	 * @return No idea what this is.
+	 * @throws InvalidDirectionException
+	 *             If the direction is not valid.
+	 * @throws InvalidPositionException
+	 *             If this results in an invalid position.
+	 */
 	protected int[][] move(int direction) throws InvalidDirectionException,
 			InvalidPositionException {
+		// TODO: Improve this!
 		if (steps <= 0)
 			return new int[2][0];
 		steps -= 1;
@@ -214,22 +235,31 @@ public class Army implements Serializable, Placeable {
 		return forest.move(this, direction);
 	}
 
-	protected boolean moveToDestination() {
+	/**
+	 * Move towards the destination.
+	 * 
+	 * @throws AlreadyAtDestinationException
+	 *             if the army is already there.
+	 */
+	protected void moveToDestination() throws AlreadyAtDestinationException {
 		int direction = position.toDestination(destination);
 		if (direction != Position.STAY) {
 			try {
 				int[][] criticalPoints = move(direction);
 				owner.getMap().addArmy(position, sightRange);
 				owner.getMap().checkArmySight(criticalPoints);
-				return true;
 			} catch (PositionException ex) {
 				ex.printStackTrace();
 				System.exit(1);
 			}
+		} else {
+			throw new AlreadyAtDestinationException();
 		}
-		return false;
 	}
 
+	/**
+	 * Start a new turn ant update the corresponding values.
+	 */
 	protected void newTurn() {
 		steps = speed;
 		isFleeing = false;
@@ -241,6 +271,9 @@ public class Army implements Serializable, Placeable {
 		canDestroy = true;
 	}
 
+	/**
+	 * End a new turn and fight if necessary.
+	 */
 	protected void endTurn() {
 		takeTogether();
 		LinkedList<Army> enemies = forest.getPosition(position).getEnemies(
@@ -253,14 +286,27 @@ public class Army implements Serializable, Placeable {
 		}
 	}
 
+	/**
+	 * Get the owner of the army.
+	 * 
+	 * @return The owner of the army.
+	 */
 	public Side getOwner() {
 		return owner;
 	}
 
+	/**
+	 * Get the troops of this army.
+	 * 
+	 * @return The troops of this army.
+	 */
 	public LinkedList<Troop> getTroops() {
 		return troops;
 	}
 
+	/**
+	 * Calculate the speed of this army.
+	 */
 	private void calculateSpeed() {
 		if (troops.size() == 0) {
 			speed = 0;
@@ -272,6 +318,9 @@ public class Army implements Serializable, Placeable {
 				speed = troop.getMinSpeed();
 	}
 
+	/**
+	 * Calculate the sight range of this army.
+	 */
 	private void calculateSightRange() {
 		if (troops.size() == 0) {
 			sightRange = 0;
@@ -283,6 +332,9 @@ public class Army implements Serializable, Placeable {
 				sightRange = troop.getMaxSightRange();
 	}
 
+	/**
+	 * Calculate the range of ranged attacks of this army.
+	 */
 	private void calculateRange() {
 		if (troops.size() == 0) {
 			range = 0;
@@ -294,10 +346,20 @@ public class Army implements Serializable, Placeable {
 				range = troop.getMaxRange();
 	}
 
+	/**
+	 * Get the position of this army.
+	 * 
+	 * @return The position of this army.
+	 */
 	public Position getPosition() {
 		return position;
 	}
 
+	/**
+	 * Get the total number of units of this army.
+	 * 
+	 * @return The total number of units of this army.
+	 */
 	public int getTotal() {
 		int sum = 0;
 		for (Troop troop : troops)
@@ -305,6 +367,13 @@ public class Army implements Serializable, Placeable {
 		return sum;
 	}
 
+	/**
+	 * Can the current army build the given building?
+	 * 
+	 * @param building
+	 *            The building to be build.
+	 * @return Is it possible?
+	 */
 	public boolean canBuild(BuildingType building) {
 		boolean positionFree = forest.getPosition(position).buildingAllowed(
 				owner);
@@ -314,10 +383,20 @@ public class Army implements Serializable, Placeable {
 		return positionFree && ownerCanBuild && canBuild();
 	}
 
+	/**
+	 * Check if the army is currently surrounded by any enemies.
+	 * 
+	 * @return Is the army left in peace?
+	 */
 	public boolean noEnemies() {
 		return !forest.getPosition(position).hasEnemies(owner);
 	}
 
+	/**
+	 * Checks if the army able to level up the building here.
+	 * 
+	 * @return Is it possible?
+	 */
 	public boolean canLevel() {
 		Building building = forest.getPosition(position).getBuilding();
 		if (building == null || building.getOwner() != owner)
@@ -326,6 +405,12 @@ public class Army implements Serializable, Placeable {
 		return ownerCanLevel && canBuild();
 	}
 
+	/**
+	 * Remove a worker of this army.
+	 * 
+	 * @throws NoWorkerException
+	 *             if there are no workers.
+	 */
 	protected void removeWorker() throws NoWorkerException {
 		for (Troop troop : troops) {
 			if (troop.getUnit().hasSpecialRule(SpecialRule.WORKER)) {
@@ -339,9 +424,17 @@ public class Army implements Serializable, Placeable {
 		throw (new NoWorkerException(this));
 	}
 
-	protected boolean build(BuildingType building) {
+	/**
+	 * Build the given building.
+	 * 
+	 * @param building
+	 *            The building to be build.
+	 * @throws InvalidBuildException
+	 *             If the army can't build this.
+	 */
+	protected void build(BuildingType building) throws InvalidBuildException {
 		if (!canBuild(building)) {
-			return false;
+			throw new InvalidBuildException();
 		}
 		canBuild = false;
 		canFormate = false;
@@ -354,12 +447,18 @@ public class Army implements Serializable, Placeable {
 			ex.printStackTrace();
 			System.exit(1);
 		}
-		return true;
 	}
 
-	protected boolean levelBuilding() {
+	/**
+	 * Level up the building here.
+	 * 
+	 * @throws InvalidLevelException
+	 *             If the army is not able to level this building.
+	 * 
+	 */
+	protected void levelBuilding() throws InvalidLevelException {
 		if (!canLevel()) {
-			return false;
+			throw new InvalidLevelException();
 		}
 		canBuild = false;
 		canFormate = false;
@@ -375,22 +474,32 @@ public class Army implements Serializable, Placeable {
 			ex.printStackTrace();
 			System.exit(1);
 		}
-		return true;
 	}
 
-	public int troops() {
+	/**
+	 * The number of troops of this army.
+	 * 
+	 * @return The number of troops.
+	 */
+	public int numTroops() {
 		return troops.size();
 	}
 
+	/**
+	 * Fight against a given other army.
+	 * 
+	 * @param enemies
+	 *            The other army to fight against.
+	 */
 	protected void fight(LinkedList<Army> enemies) {
 		int enemyTroops = 0;
 		for (Army enemy : enemies) {
-			enemyTroops += enemy.troops();
+			enemyTroops += enemy.numTroops();
 		}
 		for (Troop troop : troops) {
 			int randomIndex = (int) (Math.random() * enemyTroops);
 			for (Army enemy : enemies) {
-				int troopsNumber = enemy.troops();
+				int troopsNumber = enemy.numTroops();
 				if (randomIndex < troopsNumber) {
 					Troop enemyTroop = enemy.getTroops().get(randomIndex);
 					int ownBoni = 0, otherBoni = 0;
@@ -414,10 +523,21 @@ public class Army implements Serializable, Placeable {
 		}
 	}
 
+	/**
+	 * Checks if this army is currently fleeing.
+	 * 
+	 * @return Is the army fleeing?
+	 */
 	public boolean isFleeing() {
 		return isFleeing;
 	}
 
+	/**
+	 * Level up the units according to the enemy number.
+	 * 
+	 * @param enemyNumber
+	 *            The number of enemies that were fought.
+	 */
 	protected void levelUp(int enemyNumber) {
 		int ownNumber = getTotal();
 		if (ownNumber <= 0)
@@ -433,10 +553,20 @@ public class Army implements Serializable, Placeable {
 			troop.levelUp(bonus);
 	}
 
+	/**
+	 * The steps left in this turn for this army.
+	 * 
+	 * @return The steps left.
+	 */
 	public int getSteps() {
 		return steps;
 	}
 
+	/**
+	 * Split this army.
+	 * 
+	 * @return
+	 */
 	protected Army split() {
 		if (!canFormate())
 			return null;
@@ -450,6 +580,11 @@ public class Army implements Serializable, Placeable {
 		return null;
 	}
 
+	/**
+	 * Repair the building here.
+	 * 
+	 * @return Did it succeed?
+	 */
 	protected boolean repair() {
 		if (!canBuild())
 			return false;
@@ -460,6 +595,11 @@ public class Army implements Serializable, Placeable {
 		return true;
 	}
 
+	/**
+	 * Use magic.
+	 * 
+	 * @return Did it succeed?
+	 */
 	protected boolean useMagic() {
 		if (!canUseMagic())
 			return false;
@@ -468,6 +608,11 @@ public class Army implements Serializable, Placeable {
 		return true;
 	}
 
+	/**
+	 * Hunt food.
+	 * 
+	 * @return Did it succeed?
+	 */
 	protected boolean hunt() {
 		if (!canHunt())
 			return false;
@@ -478,35 +623,67 @@ public class Army implements Serializable, Placeable {
 		return true;
 	}
 
+	/**
+	 * Checks if this army is able to build.
+	 * 
+	 * @return Is it possible?
+	 */
 	public boolean canBuild() {
-		System.out.println("canBuild: " + canBuild + "; enemies: "
-				+ noEnemies() + "; steps: " + steps + "; workers: "
-				+ hasWorkers());
 		return canBuild && noEnemies() && steps > 0 && hasWorkers();
 	}
 
+	/**
+	 * Checks if this army is able to repair the building here.
+	 * 
+	 * @return Is it possible?
+	 */
 	public boolean canRepair() {
 		boolean hasRepairableBuilding = forest.getPosition(position)
 				.hasRepairableBuilding(owner);
 		return canBuild() && hasRepairableBuilding;
 	}
 
+	/**
+	 * Checks if this army is able to format.
+	 * 
+	 * @return Is it possible?
+	 */
 	public boolean canFormate() {
 		return canFormate && noEnemies() && steps > 0;
 	}
 
+	/**
+	 * Checks if this army is able to hunt.
+	 * 
+	 * @return Is it possible?
+	 */
 	public boolean canHunt() {
 		return canHunt && noEnemies() && steps > 0;
 	}
 
+	/**
+	 * Checks if this army is able to use magic now.
+	 * 
+	 * @return Is it possible?
+	 */
 	public boolean canUseMagic() {
 		return canUseMagic;
 	}
 
+	/**
+	 * Checks if the army is able to shoot.
+	 * 
+	 * @return Is it possible?
+	 */
 	public boolean canShoot() {
 		return canShoot && noEnemies() && steps > 0;
 	}
 
+	/**
+	 * Let all ranged units shoot.
+	 * 
+	 * @return Did it succeed?
+	 */
 	protected boolean shoot() {
 		if (!canShoot())
 			return false;
@@ -517,6 +694,11 @@ public class Army implements Serializable, Placeable {
 		return true;
 	}
 
+	/**
+	 * Destroy the enemy building here.
+	 * 
+	 * @return Did it succeed?
+	 */
 	protected boolean destroy() {
 		if (!canDestroy())
 			return false;
@@ -527,10 +709,24 @@ public class Army implements Serializable, Placeable {
 		return true;
 	}
 
+	/**
+	 * Is this army able to destroy the a building here?
+	 * 
+	 * @return Is it possible?
+	 */
 	private boolean canDestroy() {
 		return canDestroy && noEnemies() && steps > 0;
 	}
 
+	/**
+	 * Spy out the surroundings.
+	 * 
+	 * @param x
+	 *            The x coordinate to spy on.
+	 * @param y
+	 *            The y coordinate to spy on.
+	 * @return The informations collected.
+	 */
 	public String spy(int x, int y) {
 		try {
 			Position spyPosition = new Position(x, y);
@@ -541,6 +737,11 @@ public class Army implements Serializable, Placeable {
 		return "";
 	}
 
+	/**
+	 * The range of the spying abilities of this army.
+	 * 
+	 * @return The spy range.
+	 */
 	public int getSpyRange() {
 		if (troops.size() == 0) {
 			return -1;
@@ -552,13 +753,14 @@ public class Army implements Serializable, Placeable {
 		return spyRange;
 	}
 
+	/**
+	 * Returns a string representations of the army meant for the players, which
+	 * contains the army's non-hero average level, the numbers of each troop and
+	 * the heros.
+	 */
 	@Override
 	public String toString() {
-		/**
-		 * Returns a string representations of the army meant for the players,
-		 * which contains the army's non-hero average level, the numbers of each
-		 * troop and the heros.
-		 */
+
 		String string = new String();
 		for (Troop troop : troops)
 			string += troop.toString() + "\n";
@@ -566,11 +768,11 @@ public class Army implements Serializable, Placeable {
 		return string + "Average level: " + average;
 	}
 
+	/**
+	 * This methods calculates the average level of the army without counting
+	 * the heros.
+	 */
 	private int averageLevel() {
-		/**
-		 * This methods calculates the average level of the army without
-		 * counting the heros.
-		 */
 		int sum = 0, levelSum = 0;
 		for (Troop troop : troops) {
 			sum += troop.getNHTotal();
@@ -579,6 +781,11 @@ public class Army implements Serializable, Placeable {
 		return levelSum / sum;
 	}
 
+	/**
+	 * Checks if the army has reached her destination.
+	 * 
+	 * @return Is the destination reached?
+	 */
 	public boolean atDestination() {
 		return position.getX() == destination.getX()
 				&& position.getY() == destination.getY();

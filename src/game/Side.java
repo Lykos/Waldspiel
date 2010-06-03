@@ -272,8 +272,8 @@ public class Side implements Serializable {
 		gameGame.sideLoses(this);
 	}
 	
-	public boolean setArmyDestination(Army army, int x, int y) {
-		return army.setDestination(x, y);
+	public void setArmyDestination(Army army, Position destination) {
+		army.setDestination(destination);
 	}
 	
 	public boolean moveArmytoDestination(Army army) {
@@ -311,13 +311,11 @@ public class Side implements Serializable {
 	public BuildingType[] getBuildableTypes() {
 		// not elegant!
 		int length=0;
-		System.out.println("lengthwhole:" + game.getBuildingTypes().length);
 		for (BuildingType type : game.getBuildingTypes())
 			if (canBuild(type))
 				length++;
 		BuildingType[] buildingTypes = new BuildingType[length];
 		int i=0;
-		System.out.println("lengthbuildable:" + length);
 		for (BuildingType type : game.getBuildingTypes())
 			if (canBuild(type))
 				buildingTypes[i++] = type;		
