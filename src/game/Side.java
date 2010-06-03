@@ -6,16 +6,8 @@ import java.util.LinkedList;
 import position.ForestMap;
 import position.Position;
 
-import army.AlreadyAtDestinationException;
 import army.Army;
 import army.Hero;
-import army.InvalidBuildException;
-import army.InvalidDestroyException;
-import army.InvalidHuntException;
-import army.InvalidLevelException;
-import army.InvalidMagicException;
-import army.InvalidRepairException;
-import army.InvalidShootException;
 import army.Troop;
 
 import data.People;
@@ -287,42 +279,6 @@ public class Side implements Serializable {
 		gameGame.sideLoses(this);
 	}
 	
-	public void setArmyDestination(Army army, Position destination) {
-		army.setDestination(destination);
-	}
-	
-	public void moveArmytoDestination(Army army) throws AlreadyAtDestinationException {
-		army.moveToDestination();	
-	}
-	
-	public void armyBuilds(Army army, BuildingType building) throws InvalidBuildException {
-		army.build(building);			
-	}
-	
-	public void armyLevels(Army army) throws InvalidLevelException {
-		army.levelBuilding();
-}
-	
-	public void armyRepairs(Army army) throws InvalidRepairException {
-		army.repair();
-	}
-	
-	public void armyHunts(Army army) throws InvalidHuntException {
-		army.hunt();
-	}
-	
-	public void armyUsesMagic(Army army) throws InvalidMagicException {
-		army.useMagic();
-	}
-	
-	public void armyShoots(Army army) throws InvalidShootException {
-		army.shoot();
-	}
-
-	public void armyDestroys(Army army) throws InvalidDestroyException {
-		army.destroy();
-	}
-
 	public BuildingType[] getBuildableTypes() {
 		// not elegant!
 		int length=0;

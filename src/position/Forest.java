@@ -16,7 +16,7 @@ public class Forest implements Serializable {
 				field[x][y] = new Tree();
 	}
 	
-	public int[][] move(Army army, int direction) throws InvalidDirectionException, InvalidPositionException {
+	public int[][] move(Army army, Direction direction) throws InvalidDirectionException, InvalidPositionException {
 		Position position = army.getPosition();
 		getPosition(position).removeArmy(army);
 		int[][] result = position.goDirection(direction, army.getSightRange());

@@ -1,6 +1,5 @@
 package humanPlayer;
 
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -13,7 +12,9 @@ import javax.swing.event.ListSelectionListener;
 import position.InvalidPositionException;
 import position.Position;
 
+import army.AlreadyAtDestinationException;
 import army.Army;
+import army.InvalidBuildException;
 
 import data.BuildingType;
 
@@ -24,9 +25,8 @@ import game.Side;
 public class HumanPlayer implements Serializable, Player {
 
 	/**
-	 * This is the Interface between the player and the game.
-	 * If you like MVC, this is the controller, the game is
-	 * the model and the View is the view.
+	 * This is the Interface between the player and the game. If you like MVC,
+	 * this is the controller, the game is the model and the View is the view.
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -43,8 +43,8 @@ public class HumanPlayer implements Serializable, Player {
 	// private volatile boolean finished = false;
 	private EndTurnListener endTurnListener;
 	private GridListener gridListener;
-	private Building activatedBuilding=null;
-	private Army activatedArmy=null;
+	private Building activatedBuilding = null;
+	private Army activatedArmy = null;
 	private BuildListener buildListener;
 	private Builder builder;
 	private BuildCancelListener buildCancelListener;
@@ -58,22 +58,22 @@ public class HumanPlayer implements Serializable, Player {
 
 	public HumanPlayer() {
 		view = new DefaultView();
-		
+
 		// create normal listeners
 		endTurnListener = new EndTurnListener();
 		gridListener = new GridListener();
 		buildListener = new BuildListener();
-		
+
 		// subscribe them to the view.
 		view.addEndTurnListener(endTurnListener);
 		view.addGridListener(gridListener);
 		view.addBuildListener(buildListener);
-		
+
 		// get the objects of the choosers
 		buildChooser = view.getBuildChooser();
 		recruitChooser = view.getRecruitChooser();
 		researchChooser = view.getResearchChooser();
-		
+
 		// create choose command listeners
 		buildListener = new BuildListener();
 		builder = new Builder();
@@ -84,7 +84,7 @@ public class HumanPlayer implements Serializable, Player {
 		researchListener = new ResearchListener();
 		researcher = new Researcher();
 		researchCancelListener = new ResearchCancelListener();
-		
+
 		// add them to the view
 		view.addBuildListener(buildListener);
 		view.addBuildingTypeListSelectionListener(builder);
@@ -113,14 +113,14 @@ public class HumanPlayer implements Serializable, Player {
 		// finished = false;
 		view.newTurn();
 	}
-	
+
 	private class GridListener implements MouseListener {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			boolean armyFound = false;
-			int h = e.getX()/(view.getGridWidth()/(Position.XMAX+1));
-			int v = e.getY()/(view.getGridHeight()/(Position.YMAX+1));
-			if (h >= 0 && h < Position.XMAX && v >= 0 && v <= Position.YMAX){
+			int h = e.getX() / (view.getGridWidth() / (Position.XMAX + 1));
+			int v = e.getY() / (view.getGridHeight() / (Position.YMAX + 1));
+			if (h >= 0 && h < Position.XMAX && v >= 0 && v <= Position.YMAX) {
 				if (e.getButton() == MouseEvent.BUTTON1) {
 					for (Army army : side.getArmies()) {
 						Position position = army.getPosition();
@@ -134,14 +134,23 @@ public class HumanPlayer implements Serializable, Player {
 					}
 					if (!armyFound && activatedArmy != null) {
 						try {
-							side.setArmyDestination(activatedArmy, new Position(h, v));
+							activatedArmy.setDestination(new Position(h, v));
 						} catch (InvalidPositionException e1) {
-							// TODO Auto-generated catch block. Try to find a way to handle this.
+							// TODO Auto-generated catch block. Try to find a
+							// way to handle this.
 							e1.printStackTrace();
 							System.exit(1);
 						}
-						while (!activatedArmy.atDestination() && activatedArmy.getSteps() > 0) {
-							side.moveArmytoDestination(activatedArmy);
+						while (!activatedArmy.atDestination()
+								&& activatedArmy.getSteps() > 0) {
+							try {
+								activatedArmy.moveToDestination();
+							} catch (AlreadyAtDestinationException e1) {
+								// TODO Auto-generated catch block. Try to find
+								// a way to handle this.
+								e1.printStackTrace();
+								System.exit(1);
+							}
 						}
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON3) {
@@ -159,22 +168,22 @@ public class HumanPlayer implements Serializable, Player {
 		}
 
 		@Override
-		public void mouseEntered(MouseEvent e) {			
+		public void mouseEntered(MouseEvent e) {
 		}
 
 		@Override
-		public void mouseExited(MouseEvent e) {			
+		public void mouseExited(MouseEvent e) {
 		}
 
 		@Override
-		public void mousePressed(MouseEvent e) {			
+		public void mousePressed(MouseEvent e) {
 		}
 
 		@Override
-		public void mouseReleased(MouseEvent e) {			
+		public void mouseReleased(MouseEvent e) {
 		}
 	} // end class GridListener
-	
+
 	private class BuildListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -187,14 +196,14 @@ public class HumanPlayer implements Serializable, Player {
 			}
 		}
 	} // end class BuildListener
-	
+
 	private class Builder implements ActionListener, ListSelectionListener {
-		private BuildingType building=null;
-		
+		private BuildingType building = null;
+
 		private void restart() {
 			building = null;
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (building == null) {
@@ -202,7 +211,13 @@ public class HumanPlayer implements Serializable, Player {
 				return;
 			}
 			if (activatedArmy.canBuild(building)) {
-				side.armyBuilds(activatedArmy, building);
+				try {
+					activatedArmy.build(building);
+				} catch (InvalidBuildException e1) {
+					// TODO Auto-generated catch block. Try to find a way to
+					// handle this.
+					e1.printStackTrace();
+				}
 				view.notFindBuildingType();
 			}
 		}
@@ -210,16 +225,16 @@ public class HumanPlayer implements Serializable, Player {
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			building = (BuildingType) buildChooser.getSelectedValue();
-		}		
+		}
 	} // end class Builder
-	
+
 	private class BuildCancelListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			view.notFindBuildingType();
-		}		
+		}
 	} // end class BuildCancelListener
-	
+
 	private class RecruitListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -230,10 +245,10 @@ public class HumanPlayer implements Serializable, Player {
 			}
 		}
 	} // end class RecruitListener
-	
+
 	private class Recruiter implements ActionListener, ListSelectionListener {
 		private Integer recruitmentIndex = null;
-		
+
 		private void restart() {
 			recruitmentIndex = null;
 		}
@@ -253,14 +268,14 @@ public class HumanPlayer implements Serializable, Player {
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			recruitmentIndex = recruitChooser.getSelectedIndex();
-		}		
+		}
 	} // end class Recruiter
-	
+
 	private class RecruitCancelListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			view.notFindRecruit();
-		}		
+		}
 	} // end class RecruitCancelListener
 
 	private class ResearchListener implements ActionListener {
@@ -273,14 +288,14 @@ public class HumanPlayer implements Serializable, Player {
 			}
 		}
 	} // end class ResearchListener
-	
+
 	private class Researcher implements ActionListener, ListSelectionListener {
 		private Integer researchIndex = null;
-		
+
 		private void restart() {
 			researchIndex = null;
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (researchIndex == null) {
@@ -296,14 +311,14 @@ public class HumanPlayer implements Serializable, Player {
 		@Override
 		public void valueChanged(ListSelectionEvent arg0) {
 			researchIndex = researchChooser.getSelectedIndex();
-		}		
+		}
 	} // end class Researcher
-	
+
 	private class ResearchCancelListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			view.notFindResearchType();
-		}		
+		}
 	} // end class ResearchCancelListener
 
 	@Override
@@ -311,4 +326,3 @@ public class HumanPlayer implements Serializable, Player {
 		view.start();
 	}
 }
-

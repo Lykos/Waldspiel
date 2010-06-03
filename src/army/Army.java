@@ -8,6 +8,7 @@ import game.Side;
 import java.io.Serializable;
 import java.util.LinkedList;
 
+import position.Direction;
 import position.Forest;
 import position.InvalidDirectionException;
 import position.InvalidPositionException;
@@ -236,7 +237,7 @@ public class Army implements Serializable, Placeable {
 	 * @throws InvalidPositionException
 	 *             If this results in an invalid position.
 	 */
-	public int[][] move(int direction) throws InvalidDirectionException,
+	public int[][] move(Direction direction) throws InvalidDirectionException,
 			InvalidPositionException {
 		// TODO: Improve this!
 		if (steps <= 0)
@@ -254,8 +255,8 @@ public class Army implements Serializable, Placeable {
 	 *             if the army is already there.
 	 */
 	public void moveToDestination() throws AlreadyAtDestinationException {
-		int direction = position.toDestination(destination);
-		if (direction != Position.STAY) {
+		Direction direction = position.toDestination(destination);
+		if (direction != Direction.STAY) {
 			try {
 				int[][] criticalPoints = move(direction);
 				owner.getMap().addArmy(position, sightRange);

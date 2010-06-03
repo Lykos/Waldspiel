@@ -1,5 +1,6 @@
 package test;
 
+import position.Direction;
 import position.InvalidDirectionException;
 import position.InvalidPositionException;
 import position.Position;
@@ -72,72 +73,72 @@ public class PositionTest extends TestCase {
 	 */
 	public void testValidDirection() throws PositionException {
 		Position testedPosition;
-		int direction;
 		boolean toldValid;
-		for (direction=0;direction<7;direction++) {
+		Direction[] directions = Direction.values();
+		for (Direction direction : directions) {
 			testedPosition = positionCenter;
 			assertTrue(direction + " is not considered a valid direction.", positionCenter.validDirection(direction));
 		}
-		for (direction=0;direction<7;direction++) {
+		for (Direction direction : directions) {
 			testedPosition = positionTop;
 			toldValid = testedPosition.validDirection(direction);
-			if (direction == Position.N || direction == Position.NE || direction == Position.NW)
+			if (direction == Direction.NORTH || direction == Direction.NORTH_EAST || direction == Direction.NORTH_WEST)
 				assertFalse(direction + " is not considered a false direction for " + testedPosition + ".", toldValid);
 			else
 				assertTrue(direction + " is not considered a valid direction for " + testedPosition + ".", toldValid);
 		}
-		for (direction=0;direction<7;direction++) {
+		for (Direction direction : directions) {
 			testedPosition = positionBottom;
 			toldValid = testedPosition.validDirection(direction);
-			if (direction == Position.S || direction == Position.SE || direction == Position.SW)
+			if (direction == Direction.SOUTH || direction == Direction.SOUTH_EAST || direction == Direction.SOUTH_WEST)
 				assertFalse(direction + " is not considered a false direction for " + testedPosition + ".", toldValid);
 			else
 				assertTrue(direction + " is not considered a valid direction for " + testedPosition + ".", toldValid);
 		}
-		for (direction=0;direction<7;direction++) {
+		for (Direction direction : directions) {
 			testedPosition = positionLeft;
 			toldValid = testedPosition.validDirection(direction);
-			if (direction == Position.W || direction == Position.SW || direction == Position.NW)
+			if (direction == Direction.WEST || direction == Direction.SOUTH_WEST || direction == Direction.NORTH_WEST)
 				assertFalse(direction + " is not considered a false direction for " + testedPosition + ".", toldValid);
 			else
 				assertTrue(direction + " is not considered a valid direction for " + testedPosition + ".", toldValid);
 		}
-		for (direction=0;direction<7;direction++) {
+		for (Direction direction : directions) {
 			testedPosition = positionRight;
 			toldValid = testedPosition.validDirection(direction);
-			if (direction == Position.E || direction == Position.NE || direction == Position.SE)
+			if (direction == Direction.EAST || direction == Direction.NORTH_EAST || direction == Direction.SOUTH_EAST)
 				assertFalse(direction + " is not considered a false direction for " + testedPosition + ".", toldValid);
 			else
 				assertTrue(direction + " is not considered a valid direction for " + testedPosition + ".", toldValid);
 		}
-		for (direction=0;direction<7;direction++) {
+		for (Direction direction : directions) {
 			testedPosition = positionTopRight;
 			toldValid = testedPosition.validDirection(direction);
-			if (direction == Position.SW || direction == Position.S || direction == Position.W)
+			if (direction == Direction.SOUTH_WEST || direction == Direction.SOUTH || direction == Direction.WEST)
 				assertTrue(direction + " is not considered a valid direction for " + testedPosition + ".", toldValid);
 			else
 				assertFalse(direction + " is not considered a false direction for " + testedPosition + ".", toldValid);
 		}
-		for (direction=0;direction<7;direction++) {
+		for (Direction direction : directions) {
 			testedPosition = positionTopLeft;
 			toldValid = testedPosition.validDirection(direction);
-			if (direction == Position.S || direction == Position.SE || direction == Position.E)
+			if (direction == Direction.SOUTH || direction == Direction.SOUTH_EAST || direction == Direction.EAST)
 				assertTrue(direction + " is not considered a valid direction for " + testedPosition + ".", toldValid);
 			else
 				assertFalse(direction + " is not considered a false direction for " + testedPosition + ".", toldValid);
 		}
-		for (direction=0;direction<7;direction++) {
+		for (Direction direction : directions) {
 			testedPosition = positionBottomLeft;
 			toldValid = testedPosition.validDirection(direction);
-			if (direction == Position.E || direction == Position.N || direction == Position.NE)
+			if (direction == Direction.EAST || direction == Direction.NORTH || direction == Direction.NORTH_EAST)
 				assertTrue(direction + " is not considered a valid direction for " + testedPosition + ".", toldValid);
 			else
 				assertFalse(direction + " is not considered a false direction for " + testedPosition + ".", toldValid);
 		}
-		for (direction=0;direction<7;direction++) {
+		for (Direction direction : directions) {
 			testedPosition = positionBottomRight;
 			toldValid = testedPosition.validDirection(direction);
-			if (direction == Position.W || direction == Position.NW || direction == Position.N)
+			if (direction == Direction.WEST || direction == Direction.NORTH_WEST || direction == Direction.NORTH)
 				assertTrue(direction + " is not considered a valid direction for " + testedPosition + ".", toldValid);
 			else
 				assertFalse(direction + " is not considered a false direction for " + testedPosition + ".", toldValid);
@@ -188,10 +189,10 @@ public class PositionTest extends TestCase {
 	 */
 	public void testCenterGetTriangle() throws InvalidDirectionException {
 		int[][] expectedTriangle1 = {{42,43,44,45,46},{45,45,45,45,45}}; 
-		int[][] actualTriangle = positionCenter.getTriangle(Position.N, 2);
+		int[][] actualTriangle = positionCenter.getTriangle(Direction.NORTH, 2);
 		assertCoordinatesSame(expectedTriangle1, actualTriangle);
 		int[][] expectedTriangle2 = {{42,43,44,45,46,42,42,42,42},{45,45,45,45,45,41,42,43,44}}; 
-		actualTriangle = positionCenter.getTriangle(Position.NE, 2);
+		actualTriangle = positionCenter.getTriangle(Direction.NORTH_EAST, 2);
 		assertCoordinatesSame(expectedTriangle2, actualTriangle);
 	}
 	
@@ -203,19 +204,19 @@ public class PositionTest extends TestCase {
 	 */
 	public void testBottomRightGetTriangle() throws PositionException {
 		int[][] expectedTriangle1 = {{},{}}; 
-		int[][] actualTriangle = positionBottomRight.getTriangle(Position.NW, 2);
+		int[][] actualTriangle = positionBottomRight.getTriangle(Direction.NORTH_WEST, 2);
 		assertCoordinatesSame(expectedTriangle1, actualTriangle);
 		int[][] expectedTriangle2 = {{},{}}; 
-		actualTriangle = positionBottomRight.getTriangle(Position.W, 2);
+		actualTriangle = positionBottomRight.getTriangle(Direction.WEST, 2);
 		assertCoordinatesSame(expectedTriangle2, actualTriangle);		
 		int[][] expectedTriangle3 = {{98,99,100},{98,98,98}}; 
-		actualTriangle = positionBottomRight.getTriangle(Position.SW, 2);
+		actualTriangle = positionBottomRight.getTriangle(Direction.SOUTH_WEST, 2);
 		assertCoordinatesSame(expectedTriangle3, actualTriangle);
 		int[][] expectedTriangle4 = {{98,99,100},{98,98,98}}; 
-		actualTriangle = positionBottomRight.getTriangle(Position.S, 2);
+		actualTriangle = positionBottomRight.getTriangle(Direction.SOUTH, 2);
 		assertCoordinatesSame(expectedTriangle4, actualTriangle);
 		int[][] expectedTriangle5 = {{98,99,100,98,98},{98,98,98,99,100}}; 
-		actualTriangle = positionBottomRight.getTriangle(Position.SE, 2);
+		actualTriangle = positionBottomRight.getTriangle(Direction.SOUTH_EAST, 2);
 		assertCoordinatesSame(expectedTriangle5, actualTriangle);
 	}
 
