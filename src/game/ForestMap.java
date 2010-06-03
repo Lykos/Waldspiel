@@ -20,7 +20,7 @@ public class ForestMap extends Observable implements Serializable {
 	 * Constructs a new map, which doesn't see anything for the first moment.
 	 * @param owner the player whose side is controlled by this object
 	 */
-	protected ForestMap(Side owner) {
+	public ForestMap(Side owner) {
 		this.owner = owner;
 		buildingSight = new boolean[Position.XMAX+1][Position.YMAX+1];
 		armySight = new boolean[Position.XMAX+1][Position.YMAX+1];
@@ -40,7 +40,7 @@ public class ForestMap extends Observable implements Serializable {
 	 * @param position the position of the removed army
 	 * @param sightRange the sightRange of that army
 	 */
-	protected void removeArmy(Position position, int sightRange) {
+	public void removeArmy(Position position, int sightRange) {
 		int[][] oldArmySight = position.getSurrounding(sightRange);
 		int length = oldArmySight[0].length;
 		int x,y,i;
@@ -86,7 +86,7 @@ public class ForestMap extends Observable implements Serializable {
 	 * @param position the position of the army
 	 * @param sightRange the sightrange of the army
 	 */
-	protected void addArmy(Position position, int sightRange) {
+	public void addArmy(Position position, int sightRange) {
 		int[][] newArmySight = position.getSurrounding(sightRange);
 		int length = newArmySight[0].length;
 		int x,y,i;

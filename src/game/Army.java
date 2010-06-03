@@ -7,34 +7,53 @@ import data.UnitType;
 import data.BuildingType;
 import data.SpecialRule;
 
-
 public class Army implements Serializable, Placeable {
-	/** This is the Army class. Most of the game goes through this class,
-	 * because this is what the player controls.
+	/**
+	 * This is the Army class. Most of the game goes through this class, because
+	 * this is what the player controls.
 	 * **/
-	public static final long serialVersionUID=1L;
-	public static final int FLEEINGBONUS=4;
-	
+	public static final long serialVersionUID = 1L;
+	public static final int FLEEINGBONUS = 4;
+
 	private static Forest forest;
 
+	/**
+	 * Set the forest that is used by all armies.
+	 * 
+	 * @param newForest
+	 */
 	protected static void setForest(Forest newForest) {
 		forest = newForest;
 	}
-	
-	protected static Army buildArmy(LinkedList<Troop> troops, Position position, Side owner) {
+
+	/**
+	 * Make a new army at the given position and put it into the forest.
+	 * 
+	 * @param troops
+	 *            The troops to be contained by this army.
+	 * @param position
+	 *            The position of this army.
+	 * @param owner
+	 *            The owner of this army.
+	 * @return The new army.
+	 */
+	protected static Army buildArmy(LinkedList<Troop> troops,
+			Position position, Side owner) {
 		Army army = new Army(troops, position, owner);
 		forest.getPosition(position).addArmy(army);
 		army.getOwner().addArmy(army);
 		return army;
 	}
-	
+
 	private Side owner;
 	private LinkedList<Troop> troops;
 	private Position position, destination;
-	private int steps=0, speed, sightRange, range;
-	private boolean wasFighting=false, isFleeing=false, canHunt=false, canFormate=false;
-	private boolean canBuild=false, canUseMagic=false, canShoot=false, canDestroy=false;
-	
+	private int steps = 0, speed, sightRange, range;
+	private boolean wasFighting = false, isFleeing = false, canHunt = false,
+			canFormate = false;
+	private boolean canBuild = false, canUseMagic = false, canShoot = false,
+			canDestroy = false;
+
 	public Army(LinkedList<Troop> troops, Position position, Side owner) {
 		this.position = position;
 		this.owner = owner;
@@ -44,78 +63,98 @@ public class Army implements Serializable, Placeable {
 		calculateSightRange();
 		calculateSpeed();
 	}
-	
+
 	public int getSightRange() {
 		return sightRange;
 	}
-	
+
 	public int getRange() {
 		return range;
 	}
-	
+
 	public int getSpeed() {
 		return speed;
 	}
-	
+
 	protected Army copy(Position position, Side owner) {
 		LinkedList<Troop> new_troops = new LinkedList<Troop>();
-		for (int i=0;i<troops.size();i++)
+		for (int i = 0; i < troops.size(); i++)
 			new_troops.add(troops.get(i));
 		return new Army(new_troops, position, owner);
 	}
-	
+
 	public boolean hasUnit(UnitType unit) {
-		for(Troop troop: troops)
+		for (Troop troop : troops)
 			if (troop.getUnit() == unit)
-				return true; 
+				return true;
 		return false;
 	}
-	
+
 	public boolean hasWorkers() {
-		for(Troop troop: troops)
+		for (Troop troop : troops)
 			if (troop.getUnit().hasSpecialRule(SpecialRule.WORKER))
 				return true;
 		return false;
 	}
-	
+
 	public Troop findUnit(UnitType unit) {
-		for(Troop troop : troops)
+		for (Troop troop : troops)
 			if (troop.getUnit() == unit)
 				return troop;
 		return null;
 	}
-	
+
 	protected boolean setDestination(int x, int y) {
 		try {
-		destination = new Position(x,y);
+			destination = new Position(x, y);
 		} catch (InvalidPositionException ex) {
 			return false;
 		}
 		return true;
 	}
-	
+
+	/**
+	 * Let this army disappear from the forest.
+	 */
 	protected void kill() {
+		if (!isEmpty())
+			throw new NonEmptyArmyKilledException();
 		forest.getPosition(position).removeArmy(this);
 		owner.removeArmy(this);
 	}
-	
+
+	/**
+	 * Merge with all friends at the same position.
+	 */
 	protected void takeTogether() {
-		LinkedList<Army> friends = forest.getPosition(position).getFriends(this);
+		LinkedList<Army> friends = forest.getPosition(position)
+				.getFriends(this);
 		for (Army friend : friends) {
 			try {
 				merge(friend);
 			} catch (DifferentPositionException ex) {
+				// This should never happen because it's by definition armies in
+				// the same position.
+				// TODO No! Concurrency!
 				ex.printStackTrace();
 				System.exit(1);
 			}
 		}
 	}
-	
+
+	/**
+	 * Merge this army with a given other army.
+	 * 
+	 * @param other
+	 *            The other army.
+	 * @throws DifferentPositionException
+	 *             if the other army is at a different position.
+	 */
 	protected void merge(Army other) throws DifferentPositionException {
 		if (other.getPosition() != position)
-			throw (new DifferentPositionException(this, other)); 
+			throw new DifferentPositionException(this, other);
 		try {
-			for(Troop troop : other.getTroops())
+			for (Troop troop : other.getTroops())
 				addTroop(troop);
 			other.kill();
 		} catch (InvalidLevelsArrayException ex) {
@@ -123,7 +162,12 @@ public class Army implements Serializable, Placeable {
 			System.exit(1);
 		}
 	}
-	
+
+	/**
+	 * Add a new troop to this army.
+	 * @param troop The new troop.
+	 * @throws InvalidLevelsArrayException if the format of a troop is wrong.
+	 */
 	protected void addTroop(Troop troop) throws InvalidLevelsArrayException {
 		Troop existingTroop = findUnit(troop.getUnit());
 		if (existingTroop == null) {
@@ -136,9 +180,13 @@ public class Army implements Serializable, Placeable {
 				range = troop.getMaxRange();
 		} else {
 			existingTroop.merge(troop);
-		}	
+		}
 	}
 	
+	/**
+	 * Remove a given troop from the army.
+	 * @param troop The troop to be removed.
+	 */
 	protected void removeTroop(Troop troop) {
 		troops.remove(troop);
 		if (speed == troop.getMinSpeed())
@@ -148,16 +196,17 @@ public class Army implements Serializable, Placeable {
 		if (range == troop.getMaxRange())
 			calculateSightRange();
 	}
-	
-	protected int[][] move(int direction) throws InvalidDirectionException, InvalidPositionException {
-		if (steps<=0)
+
+	protected int[][] move(int direction) throws InvalidDirectionException,
+			InvalidPositionException {
+		if (steps <= 0)
 			return new int[2][0];
 		steps -= 1;
 		if (wasFighting)
 			isFleeing = true;
 		return forest.move(this, direction);
 	}
-	
+
 	protected boolean moveToDestination() {
 		int direction = position.toDestination(destination);
 		if (direction != Position.STAY) {
@@ -173,21 +222,22 @@ public class Army implements Serializable, Placeable {
 		}
 		return false;
 	}
-	
+
 	protected void newTurn() {
 		steps = speed;
 		isFleeing = false;
 		canBuild = true;
 		canShoot = true;
-		canHunt=true;
-		canFormate=true;
-		canUseMagic=true;
-		canDestroy=true;
+		canHunt = true;
+		canFormate = true;
+		canUseMagic = true;
+		canDestroy = true;
 	}
-	
+
 	protected void endTurn() {
 		takeTogether();
-		LinkedList<Army> enemies = forest.getPosition(position).getEnemies(owner);
+		LinkedList<Army> enemies = forest.getPosition(position).getEnemies(
+				owner);
 		if (enemies.size() > 0) {
 			fight(enemies);
 			wasFighting = true;
@@ -195,15 +245,15 @@ public class Army implements Serializable, Placeable {
 			wasFighting = false;
 		}
 	}
-	
+
 	public Side getOwner() {
 		return owner;
 	}
-	
+
 	public LinkedList<Troop> getTroops() {
 		return troops;
 	}
-	
+
 	private void calculateSpeed() {
 		if (troops.size() == 0) {
 			speed = 0;
@@ -214,7 +264,7 @@ public class Army implements Serializable, Placeable {
 			if (troop.getMinSpeed() < speed)
 				speed = troop.getMinSpeed();
 	}
-	
+
 	private void calculateSightRange() {
 		if (troops.size() == 0) {
 			sightRange = 0;
@@ -225,7 +275,7 @@ public class Army implements Serializable, Placeable {
 			if (troop.getMaxSightRange() < sightRange)
 				sightRange = troop.getMaxSightRange();
 	}
-	
+
 	private void calculateRange() {
 		if (troops.size() == 0) {
 			range = 0;
@@ -236,29 +286,31 @@ public class Army implements Serializable, Placeable {
 			if (troop.getMaxRange() < range)
 				range = troop.getMaxRange();
 	}
-	
+
 	public Position getPosition() {
 		return position;
 	}
-	
+
 	public int getTotal() {
 		int sum = 0;
 		for (Troop troop : troops)
 			sum += troop.getTotal();
 		return sum;
 	}
-	
+
 	public boolean canBuild(BuildingType building) {
-		boolean positionFree = forest.getPosition(position).buildingAllowed(owner);
+		boolean positionFree = forest.getPosition(position).buildingAllowed(
+				owner);
 		boolean ownerCanBuild = owner.canBuild(building);
-		System.out.println("position: " + positionFree + "; owner: " + ownerCanBuild + "; canBuild: " + canBuild());
+		System.out.println("position: " + positionFree + "; owner: "
+				+ ownerCanBuild + "; canBuild: " + canBuild());
 		return positionFree && ownerCanBuild && canBuild();
 	}
-	
+
 	public boolean noEnemies() {
 		return !forest.getPosition(position).hasEnemies(owner);
 	}
-	
+
 	public boolean canLevel() {
 		Building building = forest.getPosition(position).getBuilding();
 		if (building == null || building.getOwner() != owner)
@@ -266,7 +318,7 @@ public class Army implements Serializable, Placeable {
 		boolean ownerCanLevel = owner.canLevel(building);
 		return ownerCanLevel && canBuild();
 	}
-	
+
 	protected void removeWorker() throws NoWorkerException {
 		for (Troop troop : troops) {
 			if (troop.getUnit().hasSpecialRule(SpecialRule.WORKER)) {
@@ -279,7 +331,7 @@ public class Army implements Serializable, Placeable {
 		}
 		throw (new NoWorkerException(this));
 	}
-	
+
 	protected boolean build(BuildingType building) {
 		if (!canBuild(building)) {
 			return false;
@@ -297,7 +349,7 @@ public class Army implements Serializable, Placeable {
 		}
 		return true;
 	}
-	
+
 	protected boolean levelBuilding() {
 		if (!canLevel()) {
 			return false;
@@ -318,18 +370,18 @@ public class Army implements Serializable, Placeable {
 		}
 		return true;
 	}
-	
+
 	public int troops() {
 		return troops.size();
 	}
-	
+
 	protected void fight(LinkedList<Army> enemies) {
 		int enemyTroops = 0;
 		for (Army enemy : enemies) {
 			enemyTroops += enemy.troops();
 		}
 		for (Troop troop : troops) {
-			int randomIndex = (int)(Math.random()*enemyTroops);
+			int randomIndex = (int) (Math.random() * enemyTroops);
 			for (Army enemy : enemies) {
 				int troopsNumber = enemy.troops();
 				if (randomIndex < troopsNumber) {
@@ -354,11 +406,11 @@ public class Army implements Serializable, Placeable {
 			}
 		}
 	}
-	
+
 	public boolean isFleeing() {
 		return isFleeing;
 	}
-	
+
 	protected void levelUp(int enemyNumber) {
 		int ownNumber = getTotal();
 		if (ownNumber <= 0)
@@ -367,17 +419,17 @@ public class Army implements Serializable, Placeable {
 			enemyNumber = 1;
 		int bonus = 0;
 		if (ownNumber < enemyNumber)
-			bonus -= Math.min(enemyNumber/ownNumber, 6) * 2;
+			bonus -= Math.min(enemyNumber / ownNumber, 6) * 2;
 		if (ownNumber > enemyNumber)
-			bonus += Math.min(ownNumber/enemyNumber, 6) * 2;
+			bonus += Math.min(ownNumber / enemyNumber, 6) * 2;
 		for (Troop troop : troops)
 			troop.levelUp(bonus);
 	}
-	
+
 	public int getSteps() {
 		return steps;
 	}
-	
+
 	protected Army split() {
 		if (!canFormate())
 			return null;
@@ -390,7 +442,7 @@ public class Army implements Serializable, Placeable {
 		// TODO: Implement this.
 		return null;
 	}
-	
+
 	protected boolean repair() {
 		if (!canBuild())
 			return false;
@@ -400,7 +452,7 @@ public class Army implements Serializable, Placeable {
 		forest.getPosition(position).getBuilding().repair();
 		return true;
 	}
-	
+
 	protected boolean useMagic() {
 		if (!canUseMagic())
 			return false;
@@ -408,7 +460,7 @@ public class Army implements Serializable, Placeable {
 		// TODO: Implement this.
 		return true;
 	}
-	
+
 	protected boolean hunt() {
 		if (!canHunt())
 			return false;
@@ -418,66 +470,70 @@ public class Army implements Serializable, Placeable {
 		// TODO: Implement this.
 		return true;
 	}
-	
+
 	public boolean canBuild() {
-		System.out.println("canBuild: " + canBuild + "; enemies: " + noEnemies() + "; steps: " + steps + "; workers: " + hasWorkers());
+		System.out.println("canBuild: " + canBuild + "; enemies: "
+				+ noEnemies() + "; steps: " + steps + "; workers: "
+				+ hasWorkers());
 		return canBuild && noEnemies() && steps > 0 && hasWorkers();
 	}
-	
+
 	public boolean canRepair() {
-		boolean hasRepairableBuilding = forest.getPosition(position).hasRepairableBuilding(owner);
+		boolean hasRepairableBuilding = forest.getPosition(position)
+				.hasRepairableBuilding(owner);
 		return canBuild() && hasRepairableBuilding;
 	}
-	
+
 	public boolean canFormate() {
 		return canFormate && noEnemies() && steps > 0;
 	}
-	
+
 	public boolean canHunt() {
 		return canHunt && noEnemies() && steps > 0;
 	}
-	
+
 	public boolean canUseMagic() {
 		return canUseMagic;
 	}
-	
+
 	public boolean canShoot() {
 		return canShoot && noEnemies() && steps > 0;
 	}
-	
+
 	protected boolean shoot() {
 		if (!canShoot())
 			return false;
 		canShoot = false;
 		canFormate = false;
-		steps = 0;		
+		steps = 0;
 		// TODO: Implement this.
 		return true;
 	}
-	
+
 	protected boolean destroy() {
 		if (!canDestroy())
 			return false;
 		canDestroy = false;
 		canFormate = false;
-		steps = 0;		
+		steps = 0;
 		// TODO: Implement this.
 		return true;
 	}
-	
+
 	private boolean canDestroy() {
 		return canDestroy && noEnemies() && steps > 0;
 	}
 
 	public String spy(int x, int y) {
 		try {
-			Position spyPosition = new Position(x,y);
+			Position spyPosition = new Position(x, y);
 			if (getSpyRange() >= position.stepsTo(spyPosition))
 				return forest.getPosition(spyPosition).getSpyed();
-		} catch (PositionException ex) {}
+		} catch (PositionException ex) {
+		}
 		return "";
 	}
-	
+
 	public int getSpyRange() {
 		if (troops.size() == 0) {
 			return -1;
@@ -492,10 +548,9 @@ public class Army implements Serializable, Placeable {
 	@Override
 	public String toString() {
 		/**
-		 * Returns a string representations of the army meant
-		 * for the players, which contains the army's non-hero
-		 * average level, the numbers of each troop and the
-		 * heros.
+		 * Returns a string representations of the army meant for the players,
+		 * which contains the army's non-hero average level, the numbers of each
+		 * troop and the heros.
 		 */
 		String string = new String();
 		for (Troop troop : troops)
@@ -506,19 +561,19 @@ public class Army implements Serializable, Placeable {
 
 	private int averageLevel() {
 		/**
-		 * This methods calculates the average level
-		 * of the army without counting the heros.
+		 * This methods calculates the average level of the army without
+		 * counting the heros.
 		 */
 		int sum = 0, levelSum = 0;
 		for (Troop troop : troops) {
 			sum += troop.getNHTotal();
 			levelSum += troop.getNHLevelSum();
-		}	
-		return levelSum/sum;
+		}
+		return levelSum / sum;
 	}
 
 	public boolean atDestination() {
-		return position.getX() == destination.getX() && position.getY() == destination.getY();
+		return position.getX() == destination.getX()
+				&& position.getY() == destination.getY();
 	}
 }
-

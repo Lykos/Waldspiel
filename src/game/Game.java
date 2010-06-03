@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.LinkedList;
 
 import data.*;
+import dataLoader.DataLoader;
+import dataLoader.StupidDataLoader;
 
 public class Game implements Serializable, Runnable, GameDataContainer {
 	public static final long serialVersionUID=1L;
@@ -118,7 +120,7 @@ public class Game implements Serializable, Runnable, GameDataContainer {
 		sides.remove(side);
 	}
 	
-	protected LinkedList<Side> getSides() {
+	public LinkedList<Side> getSides() {
 		return sides;
 	}
 	

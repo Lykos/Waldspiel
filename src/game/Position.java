@@ -48,7 +48,7 @@ public class Position implements Serializable {
 	 * @param y the y-coordinate of the new point
 	 * @throws InvalidPositionException if this is not in the map.
 	 */
-	protected Position(int x, int y) throws InvalidPositionException {
+	public Position(int x, int y) throws InvalidPositionException {
 		this.x = x;
 		this.y = y;
 		if (x<0 || x>XMAX || y<0 || y>YMAX)
@@ -61,7 +61,7 @@ public class Position implements Serializable {
 	 * @return if the reached position would be in the map
 	 * @throws InvalidDirectionException if the direction does not exist
 	 */
-	protected boolean validDirection(int direction) throws InvalidDirectionException {
+	public boolean validDirection(int direction) throws InvalidDirectionException {
 		if (direction < 0 || direction > 7)
 			throw (new InvalidDirectionException(direction));
 		return inBounds(x + directionsDX[direction], y + directionsDY[direction]);
@@ -92,7 +92,7 @@ public class Position implements Serializable {
 	 * first the x, then the y-coordinate.
 	 * @throws InvalidDirectionException if the direction is not valid.
 	 */
-	protected int[][] getTriangle(int direction, int sightRange) throws InvalidDirectionException {
+	public int[][] getTriangle(int direction, int sightRange) throws InvalidDirectionException {
 		// TODO improve this and test it.
 		if (direction < 0 || direction > 7)
 			throw (new InvalidDirectionException(direction));
@@ -228,7 +228,7 @@ public class Position implements Serializable {
 	 * @param y y-coordinate of the other point.
 	 * @return integer value of the distance.
 	 */
-	protected int stepsTo(int x, int y) {
+	public int stepsTo(int x, int y) {
 		int xDifference = Math.abs(this.x-x);
 		int yDifference = Math.abs(this.y-y);
 		return Math.max(xDifference, yDifference);
@@ -241,7 +241,7 @@ public class Position implements Serializable {
 	 * @return an array of width two with all the coordinates of the
 	 * square, first the x and then the y coordinate.
 	 */
-	protected int[][] getSurrounding(int distance) {
+	public int[][] getSurrounding(int distance) {
 		int startX = Math.max(0, x-distance), endX = Math.min(x+distance, 100);
 		int startY = Math.max(0, y-distance), endY = Math.min(y+distance, 100);
 		int area = (endX-startX+1)*(endY-startY+1);

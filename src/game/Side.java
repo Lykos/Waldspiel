@@ -99,7 +99,7 @@ public class Side implements Serializable {
 		return ressources.enough(cost);
 	}
 	
-	protected void removeArmy(Army army) {
+	public void removeArmy(Army army) {
 		armies.remove(army);
 		Position position = army.getPosition();
 		map.removeArmy(position, army.getSightRange());
@@ -118,7 +118,7 @@ public class Side implements Serializable {
 		map.addBuilding(building.getPosition(), building.getSightRange());
 	}
 	
-	protected void removeBuilding(Building building) {
+	public void removeBuilding(Building building) {
 		buildings.remove(building);
 		map.removeBuilding(building.getPosition(), building.getSightRange());
 	}
