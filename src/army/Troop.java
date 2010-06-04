@@ -2,7 +2,7 @@ package army;
 
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.Vector;
 
 import position.Position;
 
@@ -16,7 +16,7 @@ public class Troop implements Serializable {
 	
 	private UnitType unit;
 	private int[] numbers = new int[LEVELS];
-	private LinkedList<Hero> heros = new LinkedList<Hero>();
+	private Vector<Hero> heroes = new Vector<Hero>();
 	
 	public Troop(UnitType unit, int[] numbers) throws InvalidLevelsArrayException {
 		this.unit = unit;
@@ -47,11 +47,11 @@ public class Troop implements Serializable {
 	}
 	
 	public void addHero(Hero hero) {
-		heros.add(hero);
+		heroes.add(hero);
 	}
 	
 	public void removeHero(Hero hero) {
-		heros.remove(hero);
+		heroes.remove(hero);
 	}
 
 	public Troop copy() {
@@ -60,9 +60,9 @@ public class Troop implements Serializable {
 		for (i=0;i<LEVELS;i++)
 			newNumbers[i] = numbers[i];
 		Troop newTroop = null;
-		Hero[] newHeros = new Hero[heros.size()];
+		Hero[] newHeros = new Hero[heroes.size()];
 		i=0;
-		for (Hero hero : heros) {
+		for (Hero hero : heroes) {
 			newHeros[i] = hero.copy();
 			i++;
 		}		
@@ -93,7 +93,7 @@ public class Troop implements Serializable {
 	
 	public int getMinSpeed() {
 		int min = unit.getSpeed();
-		for (Hero hero : heros) {
+		for (Hero hero : heroes) {
 			if (hero.getType().getSpeed() < min)
 				min = hero.getType().getSpeed();
 		}
@@ -104,7 +104,7 @@ public class Troop implements Serializable {
 		int sum = 0;
 		for (int a : numbers)
 			sum += a * unit.getMaxKills();
-		for (Hero hero : heros)
+		for (Hero hero : heroes)
 			sum += hero.getType().getMaxKills();
 		return sum;
 	}
@@ -112,7 +112,7 @@ public class Troop implements Serializable {
 	public boolean isRanged() {
 		if (unit.isRanged())
 			return true;
-		for (Hero hero : heros)
+		for (Hero hero : heroes)
 			if (hero.getType().isRanged())
 				return true;
 		return false;
@@ -126,7 +126,7 @@ public class Troop implements Serializable {
 		int max = 0;
 		if (unit.getClass() == RangedUnitType.class && getNHTotal() > 0)
 			max = ((RangedUnitType)unit).getRange();
-		for (Hero hero : heros) {
+		for (Hero hero : heroes) {
 			UnitType heroType = hero.getType();
 			if (heroType.getClass() == RangedUnitType.class) {
 				RangedUnitType rangedHeroType = (RangedUnitType) heroType;
@@ -142,7 +142,7 @@ public class Troop implements Serializable {
 		int max = unit.getSightRange();
 		if (getNHTotal() == 0)
 			max = 0;
-		for (Hero hero : heros) {
+		for (Hero hero : heroes) {
 			if (hero.getType().getSightRange() > max)
 				max = hero.getType().getSightRange();
 		}
@@ -151,7 +151,7 @@ public class Troop implements Serializable {
 	
 	public void fight(Troop otherTroop, int ownBoni, int otherBoni) {
 		int i, tmp, maxDead = otherTroop.getMaxKills();
-		for (int level=0;level<LEVELS + heros.size();level++) {
+		for (int level=0;level<LEVELS + heroes.size();level++) {
 			tmp = Math.min(maxDead, numbers[level]);
 			for (i=0;i<tmp;i++) {
 				searchAndKill(level, otherTroop, ownBoni, otherBoni, true);
@@ -180,7 +180,7 @@ public class Troop implements Serializable {
 	}
 	
 	public int getTotal() {
-		int sum=heros.size();
+		int sum=heroes.size();
 		for (int a : numbers)
 			sum += a;
 		return sum;
@@ -190,7 +190,7 @@ public class Troop implements Serializable {
 		int tmpOtherLevel = otherTroop.randomLevel(), otherLevel, ownLevel;
 		UnitType otherUnit, ownUnit;
 		if (tmpOtherLevel >= LEVELS) {
-			Hero hero = otherTroop.getHeros().get(tmpOtherLevel-LEVELS);
+			Hero hero = otherTroop.getHeroes().get(tmpOtherLevel-LEVELS);
 			otherUnit = hero.getType();
 			otherLevel = hero.getLevel();
 		} else {
@@ -198,7 +198,7 @@ public class Troop implements Serializable {
 			otherLevel = tmpOtherLevel;
 		}
 		if (tmpOwnLevel > LEVELS) {
-			Hero hero = heros.get(tmpOtherLevel-LEVELS);
+			Hero hero = heroes.get(tmpOtherLevel-LEVELS);
 			ownUnit = hero.getType();
 			ownLevel = hero.getLevel();			
 		} else {
@@ -219,8 +219,8 @@ public class Troop implements Serializable {
 		}
 	}
 	
-	public LinkedList<Hero> getHeros() {
-		return heros;
+	public Vector<Hero> getHeroes() {
+		return heroes;
 	}
 	
 	public void killOne(int level) {
@@ -228,9 +228,9 @@ public class Troop implements Serializable {
 			if (numbers[level] > 0)
 				numbers[level] -= 1;
 		} else {
-			Hero hero = heros.get(level-LEVELS);
+			Hero hero = heroes.get(level-LEVELS);
 			if (hero.wound())
-				heros.remove(hero);
+				heroes.remove(hero);
 		}
 	}
 	
@@ -246,7 +246,7 @@ public class Troop implements Serializable {
 				}
 			}
 		}
-		for (Hero hero : heros)
+		for (Hero hero : heroes)
 			hero.levelUp(bonus);
 	}
 	
@@ -294,7 +294,7 @@ public class Troop implements Serializable {
 		int max = unit.getSightRange();
 		if (getNHTotal() == 0 && !unit.hasSpecialRule(SpecialRule.SPY))
 			max = 0;
-		for (Hero hero : heros) {
+		for (Hero hero : heroes) {
 			UnitType heroType = hero.getType();
 			if (heroType.getSightRange() > max && heroType.hasSpecialRule(SpecialRule.SPY))
 				max = heroType.getSightRange();
@@ -304,8 +304,21 @@ public class Troop implements Serializable {
 	
 	public String toString() {
 		String string = unit.getName() + ": " + getTotal();
-		for (Hero hero : heros)
+		for (Hero hero : heroes)
 			string += "\n\t" + hero.toString();
 		return string;
+	}
+
+	public boolean isEmpty() {
+		return getTotal() == 0;
+	}
+
+	public boolean hasUnit(UnitType unitType) {
+		if (unit == unitType && getNHTotal() > 0)
+			return true;
+		for (Hero hero : heroes)
+			if (hero.getType() == unitType && hero.lives())
+				return true;
+		return false;
 	}
 }

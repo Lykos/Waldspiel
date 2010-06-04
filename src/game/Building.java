@@ -1,7 +1,7 @@
 package game;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.Vector;
 
 import position.Forest;
 import position.Placeable;
@@ -41,12 +41,12 @@ public class Building implements Serializable, Placeable {
 	private BuildingType type;
 	private Position position;
 	private Side owner;
-	private LinkedList<Integer> recruitments;
-	private LinkedList<Integer> researchGoals;
+	private Vector<Integer> recruitments;
+	private Vector<Integer> researchGoals;
 	
 	public Building(BuildingType type, Position position, Side owner) throws IsAlreadyBuildException {
-		researchGoals = new LinkedList<Integer>();
-		recruitments = new LinkedList<Integer>();
+		researchGoals = new Vector<Integer>();
+		recruitments = new Vector<Integer>();
 		this.type = type;
 		this.position = position;
 		this.owner = owner;
@@ -136,8 +136,8 @@ public class Building implements Serializable, Placeable {
 		for (int i=0;i<level+1;i++) {
 			int recruitmentIndex = -1;
 			while (recruitments.size() > 0 && recruitmentIndex == -1) {
-				recruitmentIndex = recruitments.getFirst();
-				recruitments.removeFirst();
+				recruitmentIndex = recruitments.get(0);
+				recruitments.remove(0);
 				if (recruitmentIndex >= type.getRecruitments(owner.getPeople()).length || recruitmentIndex < 0)
 					recruitmentIndex = -1;
 			}
@@ -145,7 +145,7 @@ public class Building implements Serializable, Placeable {
 				return;
 			UnitType recruitment = type.getRecruitments(owner.getPeople())[recruitmentIndex];
 			if (owner.canPay(recruitment.getCost())) {
-				LinkedList<Troop> troops = new LinkedList<Troop>();
+				Vector<Troop> troops = new Vector<Troop>();
 				int[] numbers = new int[Troop.LEVELS];
 				for (int j=0;j<numbers.length;j++) {
 					numbers[j] = 0;
@@ -187,15 +187,15 @@ public class Building implements Serializable, Placeable {
 		for (int i=0;i<level;i++) {
 			int researchIndex = -1;
 			while (researchGoals.size() > 0 && researchIndex == -1) {
-				researchIndex = researchGoals.getFirst();
+				researchIndex = researchGoals.get(0);
 				if (researchIndex >= type.getResearchs(owner.getPeople()).length || researchIndex < 0) {
-					researchGoals.removeFirst();
+					researchGoals.remove(0);
 					researchIndex = -1;
 				} else {
 					research = type.getResearchs(owner.getPeople())[researchIndex];
 					boolean hasMaxLevel = owner.hasResearch(research,research.getMaxLevel());
 					if (hasMaxLevel) {
-						researchGoals.removeFirst();
+						researchGoals.remove(0);
 						researchIndex = -1;						
 					}						
 				}
@@ -211,7 +211,7 @@ public class Building implements Serializable, Placeable {
 						owner.addResearch(new Research(research));
 					else
 						owner.levelUpResearch(research);
-					researchGoals.removeFirst();
+					researchGoals.remove(0);
 				} catch (NegativeRessourceException ex) {
 					ex.printStackTrace();
 					System.exit(1);

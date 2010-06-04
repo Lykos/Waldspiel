@@ -5,7 +5,7 @@ import game.IsAlreadyBuildException;
 import game.Side;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.Vector;
 
 import army.Army;
 
@@ -14,7 +14,7 @@ public class Tree implements Serializable {
 
 	public static final int NOTHING = 0, OWNBUILDING=1, BUILDING = 2, ARMY = 3, ENEMY = 4, FIGHT = 5;
 	
-	private LinkedList<Army> armies = new LinkedList<Army>();
+	private Vector<Army> armies = new Vector<Army>();
 	private Building building=null;
 	
 	public boolean addArmy(Army army) {
@@ -56,8 +56,8 @@ public class Tree implements Serializable {
 		return building.getHitpoints() < building.getMaxHitpoints();
 	}
 	
-	public LinkedList<Army> getEnemies(Side friend) {
-		LinkedList<Army> enemies = new LinkedList<Army>();
+	public Vector<Army> getEnemies(Side friend) {
+		Vector<Army> enemies = new Vector<Army>();
 		for (Army army : armies) {
 			if (army.getOwner() != friend)
 				enemies.add(army);
@@ -65,8 +65,8 @@ public class Tree implements Serializable {
 		return enemies;
 	}
 
-	public LinkedList<Army> getFriends(Army army) {
-		LinkedList<Army> friends = new LinkedList<Army>();
+	public Vector<Army> getFriends(Army army) {
+		Vector<Army> friends = new Vector<Army>();
 		for (Army friend : armies) {
 			if (army.getOwner() == army.getOwner() && friend != army)
 				friends.add(army);

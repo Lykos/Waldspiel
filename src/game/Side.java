@@ -1,7 +1,7 @@
 package game;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.Vector;
 
 import position.ForestMap;
 import position.Position;
@@ -29,10 +29,10 @@ public class Side implements Serializable {
 	private boolean human, finished = false, kingDead = false;
 	private ForestMap map;
 	private People people;
-	private LinkedList<String> messages;
-	private LinkedList<Building> buildings;
-	private LinkedList<Army> armies;
-	private LinkedList<Research> researchs;
+	private Vector<String> messages;
+	private Vector<Building> buildings;
+	private Vector<Army> armies;
+	private Vector<Research> researchs;
 	private Player player;
 	private Hero king;
 	private final UnitType kingType;
@@ -46,15 +46,15 @@ public class Side implements Serializable {
 		this.human = human;
 		this.people = people;
 		map = new ForestMap(this);
-		messages = new LinkedList<String>();
+		messages = new Vector<String>();
 		this.player = player;
 		// Get the default start stuff for the given people.
 		ressources = new Ressources(this.people.getStartingRessources());
 		System.out.println("Ressourcenlaenge: " + ressources.getRessources().size() + " Ressourcen: " + ressources);
-		armies = new LinkedList<Army>();
+		armies = new Vector<Army>();
 		UnitType[] startingUnits = people.getStartingUnits();
 		int[] numbers = people.getNumbers();
-		LinkedList<Troop> startingTroops = new LinkedList<Troop>();
+		Vector<Troop> startingTroops = new Vector<Troop>();
 		int i;
 		kingType = people.getKing();
 		king = new Hero(kingType, 2, name);
@@ -65,11 +65,11 @@ public class Side implements Serializable {
 		Army.buildArmy(startingTroops,start,this);
 		ResearchType[] startingResearchs = people.getStartingResearchs();
 		int[] levels = people.getLevels();
-		researchs = new LinkedList<Research>();
+		researchs = new Vector<Research>();
 		for (i=0;i<levels.length;i++) {
 			researchs.add(new Research(startingResearchs[i],levels[i]));
 		}
-		buildings = new LinkedList<Building>();
+		buildings = new Vector<Building>();
 		try {
 			addBuilding(new Building(people.getHeadQuader(), start, this));
 		} catch (IsAlreadyBuildException ex) {
@@ -171,7 +171,7 @@ public class Side implements Serializable {
 	
 	public void newKing() {
 		king = new Hero(people.getKing(), 2, name);
-		LinkedList<Troop> heroTroops = new LinkedList<Troop>();
+		Vector<Troop> heroTroops = new Vector<Troop>();
 		UnitType worker = game.getWorker(people);
 		heroTroops.add(new Troop(worker, 0, king));
 		Army.buildArmy(heroTroops, start, this);
@@ -236,7 +236,7 @@ public class Side implements Serializable {
 		}		
 	}
 	
-	public LinkedList<Army> getArmies() {
+	public Vector<Army> getArmies() {
 		return armies;
 	}
 	
@@ -257,17 +257,17 @@ public class Side implements Serializable {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public LinkedList<String> getMessages() {
-		LinkedList<String> tmpMessages = (LinkedList<String>) messages.clone();
+	public Vector<String> getMessages() {
+		Vector<String> tmpMessages = (Vector<String>) messages.clone();
 		messages.clear();
 		return tmpMessages;
 	}
 	
-	public LinkedList<Building> getBuildings() {
+	public Vector<Building> getBuildings() {
 		return buildings;
 	}
 	
-	public LinkedList<Research> getResearchs() {
+	public Vector<Research> getResearchs() {
 		return researchs;
 	}
 	

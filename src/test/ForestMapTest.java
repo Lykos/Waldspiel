@@ -23,13 +23,13 @@ public class ForestMapTest extends TestCase {
 			side = game.getSides().getFirst();
 			name = side.getPeople().getName();
 		}
-		fooArmy = side.getArmies().getFirst();
+		fooArmy = side.getArmies().get(0);
 		while (side.getArmies().size() > 0) {
-			Army army = side.getArmies().getFirst();
+			Army army = side.getArmies().get(0);
 			side.removeArmy(army);
 		}
 		while (side.getBuildings().size() > 0) {
-			Building building = side.getBuildings().getFirst();
+			Building building = side.getBuildings().get(0);
 			side.removeBuilding(building);
 		}
 		map = new ForestMap(side);

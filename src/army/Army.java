@@ -6,7 +6,7 @@ import game.Ressources;
 import game.Side;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.Vector;
 
 import position.Direction;
 import position.Forest;
@@ -53,7 +53,7 @@ public class Army implements Serializable, Placeable {
 	 *            The owner of this army.
 	 * @return The new army.
 	 */
-	public static Army buildArmy(LinkedList<Troop> troops, Position position,
+	public static Army buildArmy(Vector<Troop> troops, Position position,
 			Side owner) {
 		Army army = new Army(troops, position, owner);
 		forest.getPosition(position).addArmy(army);
@@ -62,7 +62,7 @@ public class Army implements Serializable, Placeable {
 	}
 
 	private Side owner;
-	private LinkedList<Troop> troops;
+	private Vector<Troop> troops;
 	private Position position, destination;
 	private int steps = 0, speed, sightRange, range;
 	private boolean wasFighting = false, isFleeing = false, canHunt = false,
@@ -70,7 +70,17 @@ public class Army implements Serializable, Placeable {
 	private boolean canBuild = false, canUseMagic = false, canShoot = false,
 			canDestroy = false;
 
-	public Army(LinkedList<Troop> troops, Position position, Side owner) {
+	/**
+	 * Initializes a new army.
+	 * 
+	 * @param troops
+	 *            The troops of the new army.
+	 * @param position
+	 *            The position of the new army.
+	 * @param owner
+	 *            The owner of the new army.
+	 */
+	public Army(Vector<Troop> troops, Position position, Side owner) {
 		this.position = position;
 		this.owner = owner;
 		this.troops = troops;
@@ -80,32 +90,61 @@ public class Army implements Serializable, Placeable {
 		calculateSpeed();
 	}
 
+	/**
+	 * @return The sight range of this army.
+	 */
 	public int getSightRange() {
 		return sightRange;
 	}
 
+	/**
+	 * @return The range of this army.
+	 */
 	public int getRange() {
 		return range;
 	}
 
+	/**
+	 * @return The speed of this army.
+	 */
 	public int getSpeed() {
 		return speed;
 	}
 
+	/**
+	 * Create a new army with exactly the same content, but always different
+	 * objects.
+	 * 
+	 * @param position
+	 *            The position where the new army shall be.
+	 * @param owner
+	 *            The new owner of the army.
+	 * @return The new army.
+	 */
 	public Army copy(Position position, Side owner) {
-		LinkedList<Troop> new_troops = new LinkedList<Troop>();
+		Vector<Troop> newTroops = new Vector<Troop>();
 		for (int i = 0; i < troops.size(); i++)
-			new_troops.add(troops.get(i));
-		return new Army(new_troops, position, owner);
+			newTroops.add(troops.get(i).copy());
+		return new Army(newTroops, position, owner);
 	}
 
+	/**
+	 * Check if a given unit type is contained in the troops of an army.
+	 * 
+	 * @param unit
+	 *            The unit type in question.
+	 * @return Is this unit type contained?
+	 */
 	public boolean hasUnit(UnitType unit) {
 		for (Troop troop : troops)
-			if (troop.getUnit() == unit)
+			if (troop.hasUnit(unit))
 				return true;
 		return false;
 	}
 
+	/**
+	 * @return Has this army got any workers?
+	 */
 	public boolean hasWorkers() {
 		for (Troop troop : troops)
 			if (troop.getUnit().hasSpecialRule(SpecialRule.WORKER))
@@ -113,6 +152,13 @@ public class Army implements Serializable, Placeable {
 		return false;
 	}
 
+	/**
+	 * Find the troop of a given unit type.
+	 * 
+	 * @param unit
+	 *            The unit type in question.
+	 * @return The troop of this unit.
+	 */
 	public Troop findUnit(UnitType unit) {
 		for (Troop troop : troops)
 			if (troop.getUnit() == unit)
@@ -151,8 +197,7 @@ public class Army implements Serializable, Placeable {
 	 * Merge with all friends at the same position.
 	 */
 	public void takeTogether() {
-		LinkedList<Army> friends = forest.getPosition(position)
-				.getFriends(this);
+		Vector<Army> friends = forest.getPosition(position).getFriends(this);
 		for (Army friend : friends) {
 			try {
 				merge(friend);
@@ -199,14 +244,26 @@ public class Army implements Serializable, Placeable {
 		Troop existingTroop = findUnit(troop.getUnit());
 		if (existingTroop == null) {
 			troops.add(troop);
+			updateExtrema(troop);
+		} else if (troop.isEmpty()) {
+			return;
+		} else {
+			boolean wasEmpty = existingTroop.isEmpty();
+			existingTroop.merge(troop);
+			if (wasEmpty)
+				updateExtrema(existingTroop);
+		}
+	}
+
+	private void updateExtrema(Troop troop) {
+		if (!troop.isEmpty()) {
 			if (troop.getMinSpeed() < speed)
 				speed = troop.getMinSpeed();
-			if (troop.getMaxSightRange() < sightRange)
+			if (troop.getMaxSightRange() > sightRange) {
 				sightRange = troop.getMaxSightRange();
-			if (troop.getMaxRange() < range)
+			}
+			if (troop.getMaxRange() > range)
 				range = troop.getMaxRange();
-		} else {
-			existingTroop.merge(troop);
 		}
 	}
 
@@ -218,12 +275,9 @@ public class Army implements Serializable, Placeable {
 	 */
 	public void removeTroop(Troop troop) {
 		troops.remove(troop);
-		if (speed == troop.getMinSpeed())
-			calculateSpeed();
-		if (sightRange == troop.getMaxSightRange())
-			calculateRange();
-		if (range == troop.getMaxRange())
-			calculateSightRange();
+		calculateSpeed();
+		calculateSightRange();
+		calculateRange();
 	}
 
 	/**
@@ -289,8 +343,7 @@ public class Army implements Serializable, Placeable {
 	 */
 	public void endTurn() {
 		takeTogether();
-		LinkedList<Army> enemies = forest.getPosition(position).getEnemies(
-				owner);
+		Vector<Army> enemies = forest.getPosition(position).getEnemies(owner);
 		if (enemies.size() > 0) {
 			fight(enemies);
 			wasFighting = true;
@@ -313,7 +366,7 @@ public class Army implements Serializable, Placeable {
 	 * 
 	 * @return The troops of this army.
 	 */
-	public LinkedList<Troop> getTroops() {
+	public Vector<Troop> getTroops() {
 		return troops;
 	}
 
@@ -321,13 +374,13 @@ public class Army implements Serializable, Placeable {
 	 * Calculate the speed of this army.
 	 */
 	private void calculateSpeed() {
-		if (troops.size() == 0) {
+		if (isEmpty()) {
 			speed = 0;
 			return;
 		}
-		speed = troops.getFirst().getMinSpeed();
+		speed = 10000;
 		for (Troop troop : troops)
-			if (troop.getMinSpeed() < speed)
+			if (!troop.isEmpty() && troop.getMinSpeed() < speed)
 				speed = troop.getMinSpeed();
 	}
 
@@ -335,13 +388,13 @@ public class Army implements Serializable, Placeable {
 	 * Calculate the sight range of this army.
 	 */
 	private void calculateSightRange() {
-		if (troops.size() == 0) {
+		if (isEmpty()) {
 			sightRange = 0;
 			return;
 		}
-		sightRange = troops.getFirst().getMaxSightRange();
+		sightRange = 0;
 		for (Troop troop : troops)
-			if (troop.getMaxSightRange() < sightRange)
+			if (!troop.isEmpty() && troop.getMaxSightRange() > sightRange)
 				sightRange = troop.getMaxSightRange();
 	}
 
@@ -349,13 +402,13 @@ public class Army implements Serializable, Placeable {
 	 * Calculate the range of ranged attacks of this army.
 	 */
 	private void calculateRange() {
-		if (troops.size() == 0) {
+		if (isEmpty()) {
 			range = 0;
 			return;
 		}
-		range = troops.getFirst().getMaxRange();
+		range = 0;
 		for (Troop troop : troops)
-			if (troop.getMaxRange() < range)
+			if (!troop.isEmpty() && troop.getMaxRange() > range)
 				range = troop.getMaxRange();
 	}
 
@@ -391,8 +444,6 @@ public class Army implements Serializable, Placeable {
 		boolean positionFree = forest.getPosition(position).buildingAllowed(
 				owner);
 		boolean ownerCanBuild = owner.canBuild(building);
-		System.out.println("position: " + positionFree + "; owner: "
-				+ ownerCanBuild + "; canBuild: " + canBuild());
 		return positionFree && ownerCanBuild && canBuild();
 	}
 
@@ -504,7 +555,7 @@ public class Army implements Serializable, Placeable {
 	 * @param enemies
 	 *            The other army to fight against.
 	 */
-	public void fight(LinkedList<Army> enemies) {
+	public void fight(Vector<Army> enemies) {
 		int enemyTroops = 0;
 		for (Army enemy : enemies) {
 			enemyTroops += enemy.numTroops();
@@ -698,7 +749,8 @@ public class Army implements Serializable, Placeable {
 	 * Let all ranged units shoot.
 	 * 
 	 * @return Did it succeed?
-	 * @throws InvalidShootException if the army actually isn't allowed to shoot right now.
+	 * @throws InvalidShootException
+	 *             if the army actually isn't allowed to shoot right now.
 	 */
 	public void shoot() throws InvalidShootException {
 		if (!canShoot())
@@ -764,7 +816,7 @@ public class Army implements Serializable, Placeable {
 		if (troops.size() == 0) {
 			return -1;
 		}
-		int spyRange = troops.getFirst().getMaxSpyRange();
+		int spyRange = 0;
 		for (Troop troop : troops)
 			if (troop.getMaxSightRange() < sightRange)
 				spyRange = troop.getMaxSpyRange();

@@ -59,4 +59,8 @@ public class Hero implements Serializable {
 	public String toString() {
 		return name + ": " + type.getName() + " level " + level + " hitpoints: " + hitPoints;
 	}
+
+	public boolean lives() {
+		return hitPoints > 0;
+	}
 }
