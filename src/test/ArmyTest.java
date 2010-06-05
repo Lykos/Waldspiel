@@ -49,7 +49,7 @@ public class ArmyTest extends TestCase {
 				15, 15, new SpecialRule[] {}, 0, 2, UnitType.NEUTRAL), 2, 2, 2);
 		worker = new UnitType(fastSpeed, "Grauwolf", 14, new Ressources(
 				new RessourceAmount[] {}), 2, side.getPeople(), 15, 15,
-				new SpecialRule[] {}, 0, 2, UnitType.NEUTRAL);
+				new SpecialRule[] {new SpecialRule("worker", SpecialRule.WORKER)}, 0, 2, UnitType.NEUTRAL);
 	}
 
 	public void testSpeed() throws InvalidPositionException,
@@ -202,14 +202,44 @@ public class ArmyTest extends TestCase {
 				.hasUnit(blindUnit));
 		assertTrue("The army doesn't count the hero's troop.", army
 				.hasUnit(seeingUnit));
-		while (hero.lives())
+		while (hero.isAlive())
 			hero.wound();
 		assertFalse("The army counts dead heroes.", army.hasUnit(blindUnit));
 		assertTrue("The army doesn't count the dead hero's troop.", army
 				.hasUnit(seeingUnit));
 	}
 	
-	public void testHasWorkers() {
+	public void testHasWorkers() throws InvalidPositionException, InvalidLevelsArrayException {
 		assertTrue("The starting army has no workers.", side.getArmies().firstElement().hasWorkers());
+		Troop closeTroop = new Troop(closeUnit, 10);
+		Vector<Troop> troops = new Vector<Troop>();
+		troops.add(closeTroop);
+		Army army = Army.buildArmy(troops, new Position(10, 10), side);
+		assertFalse(
+				"The army with only the close unit has workers.",
+				army.hasWorkers());
+		Troop emptyWorkers = new Troop(worker, 0);
+		army.addTroop(emptyWorkers);
+		assertFalse(
+				"The army with only the close and the empty troop has workers.",
+				army.hasWorkers());
+		Troop workers = new Troop(worker, 10);
+		army.addTroop(workers);
+		assertTrue(
+				"The army with both troops has no workers.",
+				army.hasWorkers());
+		army.removeTroop(emptyWorkers);
+		assertFalse(
+				"The army still has workers after their removal.",
+				army.hasWorkers());
+		Hero hero = new Hero(worker, 2);
+		Troop heroTroop = new Troop(seeingUnit, 3);
+		heroTroop.addHero(hero);
+		army.addTroop(heroTroop);
+		assertTrue("The hero worker doesn't count.", army
+				.hasWorkers());
+		while (hero.isAlive())
+			hero.wound();
+		assertFalse("The army counts dead heroes as workers.", army.hasWorkers());
 	}
 }

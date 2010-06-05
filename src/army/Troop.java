@@ -317,7 +317,16 @@ public class Troop implements Serializable {
 		if (unit == unitType && getNHTotal() > 0)
 			return true;
 		for (Hero hero : heroes)
-			if (hero.getType() == unitType && hero.lives())
+			if (hero.getType() == unitType && hero.isAlive())
+				return true;
+		return false;
+	}
+
+	public boolean hasSpecialRule(int specialRule) {
+		if (unit.hasSpecialRule(specialRule))
+			return true;
+		for (Hero hero : heroes)
+			if (hero.isAlive() && hero.getType().hasSpecialRule(specialRule))
 				return true;
 		return false;
 	}

@@ -60,7 +60,7 @@ public class Hero implements Serializable {
 		return name + ": " + type.getName() + " level " + level + " hitpoints: " + hitPoints;
 	}
 
-	public boolean lives() {
+	public boolean isAlive() {
 		return hitPoints > 0;
 	}
 }

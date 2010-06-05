@@ -147,7 +147,7 @@ public class Army implements Serializable, Placeable {
 	 */
 	public boolean hasWorkers() {
 		for (Troop troop : troops)
-			if (troop.getUnit().hasSpecialRule(SpecialRule.WORKER))
+			if (!troop.isEmpty() && troop.hasSpecialRule(SpecialRule.WORKER))
 				return true;
 		return false;
 	}
