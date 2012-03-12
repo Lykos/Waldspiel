@@ -191,7 +191,11 @@ public class HumanPlayer implements Serializable, Player {
 			if (activatedArmy.canBuild()) {
 				System.out.println("blablabla");
 				builder.restart();
-				buildChooser.setData(side.getBuildableTypes());
+				
+				// debug
+				String examples[] = {"Ha", "li"};
+				
+				buildChooser.setData(examples/*side.getBuildableTypes()*/);
 				view.findBuildingType();
 			}
 		}

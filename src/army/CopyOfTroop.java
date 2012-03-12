@@ -10,7 +10,7 @@ import data.RangedUnitType;
 import data.SpecialRule;
 import data.UnitType;
 
-public class Troop implements Serializable {
+public class CopyOfTroop implements Serializable {
 	public static final long serialVersionUID=1L;
 	public static final int LEVELS=10;
 	
@@ -18,7 +18,7 @@ public class Troop implements Serializable {
 	private int[] numbers = new int[LEVELS];
 	private Vector<Hero> heroes = new Vector<Hero>();
 	
-	public Troop(UnitType unit, int[] numbers) throws InvalidLevelsArrayException {
+	public CopyOfTroop(UnitType unit, int[] numbers) throws InvalidLevelsArrayException {
 		this.unit = unit;
 		if (numbers.length != LEVELS) {
 			throw (new InvalidLevelsArrayException(numbers.length));
@@ -27,19 +27,19 @@ public class Troop implements Serializable {
 			this.numbers[i] = numbers[i];
 	}
 	
-	public Troop(UnitType unit, int number, Hero hero) {
+	public CopyOfTroop(UnitType unit, int number, Hero hero) {
 		this(unit, number);
 		addHero(hero);
 	}
 	
-	public Troop(UnitType unit, int number) {
+	public CopyOfTroop(UnitType unit, int number) {
 		this.unit = unit;
 		numbers[0] = number;
 		for (int i=1;i<LEVELS;i++)
 			numbers[i] = 0;
 	}
 	
-	public Troop(UnitType unit, int[] numbers, Hero[] heros) throws InvalidLevelsArrayException {
+	public CopyOfTroop(UnitType unit, int[] numbers, Hero[] heros) throws InvalidLevelsArrayException {
 		this(unit, numbers);
 		for (Hero hero : heros) {
 			addHero(hero);
@@ -54,12 +54,12 @@ public class Troop implements Serializable {
 		heroes.remove(hero);
 	}
 
-	public Troop copy() {
+	public CopyOfTroop copy() {
 		int[] newNumbers = new int[LEVELS];
 		int i;
 		for (i=0;i<LEVELS;i++)
 			newNumbers[i] = numbers[i];
-		Troop newTroop = null;
+		CopyOfTroop newTroop = null;
 		Hero[] newHeros = new Hero[heroes.size()];
 		i=0;
 		for (Hero hero : heroes) {
@@ -67,7 +67,7 @@ public class Troop implements Serializable {
 			i++;
 		}		
 		try {
-			newTroop = new Troop(unit, newNumbers, newHeros);
+			newTroop = new CopyOfTroop(unit, newNumbers, newHeros);
 		} catch (InvalidLevelsArrayException ex) {
 			ex.printStackTrace();
 			System.exit(1);
@@ -79,7 +79,7 @@ public class Troop implements Serializable {
 		return unit;
 	}
 	
-	public void merge(Troop troop) throws InvalidLevelsArrayException {
+	public void merge(CopyOfTroop troop) throws InvalidLevelsArrayException {
 		int[] newNumbers = troop.getNumbers();
 		if (newNumbers.length != LEVELS)
 			throw (new InvalidLevelsArrayException(newNumbers.length));
@@ -149,7 +149,7 @@ public class Troop implements Serializable {
 		return max;		
 	}
 	
-	public void fight(Troop otherTroop, int ownBoni, int otherBoni) {
+	public void fight(CopyOfTroop otherTroop, int ownBoni, int otherBoni) {
 		int i, tmp, maxDead = otherTroop.getMaxKills();
 		for (int level=0;level<LEVELS + heroes.size();level++) {
 			tmp = Math.min(maxDead, numbers[level]);
@@ -186,7 +186,7 @@ public class Troop implements Serializable {
 		return sum;
 	}
 	
-	public void searchAndKill(int tmpOwnLevel, Troop otherTroop, int ownBoni, int otherBoni, boolean otherCanKill) {
+	public void searchAndKill(int tmpOwnLevel, CopyOfTroop otherTroop, int ownBoni, int otherBoni, boolean otherCanKill) {
 		int tmpOtherLevel = otherTroop.randomLevel(), otherLevel, ownLevel;
 		UnitType otherUnit, ownUnit;
 		if (tmpOtherLevel >= LEVELS) {

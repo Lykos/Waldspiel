@@ -9,36 +9,33 @@ import java.io.Serializable;
 import java.util.Observable;
 import java.util.Observer;
 
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 
 import position.ForestMap;
-import position.Position;
-
 import army.Army;
 
 public class DefaultView extends JFrame implements View, Serializable {
 
 	/**
-	 * This is the default view, most likely, there
-	 * will never be any other, but you never know.
+	 * This is the default view, most likely, there will never be any other, but
+	 * you never know.
 	 */
 	private static final long serialVersionUID = 1L;
-	private JButton endTurn, build, split, shoot, spy, useMagic, levelUp,
-	hunt, research, recruit;
+	private JButton endTurn, build, split, shoot, spy, useMagic, levelUp, hunt,
+			research, recruit;
 	private FPanel controls, armyControls, buildingControls;
 	private Grid grid;
 	private RessourcesPanel ressourcesPanel;
 	private JScrollPane scrollPane;
 	private JTextArea armyInfo, buildingInfo;
 	private ArrayChooser researchChooser, buildingChooser, recruitmentChooser;
-	
+
 	public DefaultView() {
-		setMinimumSize(new Dimension(700,500));
+		setMinimumSize(new Dimension(700, 500));
 		Container cont = this.getContentPane();
 		cont.setLayout(new BorderLayout());
-		
+
 		researchChooser = new ArrayChooser(this, "Research");
 		recruitmentChooser = new ArrayChooser(this, "Recruit");
 		buildingChooser = new ArrayChooser(this, "Build");
@@ -46,7 +43,7 @@ public class DefaultView extends JFrame implements View, Serializable {
 		buildingInfo = new JTextArea();
 		research = new JButton("Research");
 		recruit = new JButton("Recruit");
-		
+
 		armyInfo = new JTextArea();
 		build = new JButton("Build");
 		split = new JButton("Split");
@@ -55,15 +52,16 @@ public class DefaultView extends JFrame implements View, Serializable {
 		useMagic = new JButton("Use Magic");
 		levelUp = new JButton("Extend Building");
 		hunt = new JButton("Hunt");
-		
+
 		endTurn = new JButton("End turn");
 		endTurn.setEnabled(false);
 
 		buildingControls = new FPanel();
-		buildingControls.setLayout(new BoxLayout(buildingControls, BoxLayout.Y_AXIS));
+		buildingControls.setLayout(new BoxLayout(buildingControls,
+				BoxLayout.Y_AXIS));
 		buildingControls.add(research);
 		buildingControls.add(recruit);
-		
+
 		armyControls = new FPanel();
 		armyControls.setLayout(new BoxLayout(armyControls, BoxLayout.Y_AXIS));
 		armyControls.add(armyInfo);
@@ -79,62 +77,24 @@ public class DefaultView extends JFrame implements View, Serializable {
 		controls.setLayout(new BorderLayout());
 		controls.add(endTurn, BorderLayout.SOUTH);
 		cont.add(controls, BorderLayout.EAST);
-		
+
 		grid = new Grid();
 		cont.add(grid, BorderLayout.CENTER);
-		
+
 		ressourcesPanel = new RessourcesPanel();
 		cont.add(ressourcesPanel, BorderLayout.NORTH);
-	}
-	
-	private class Grid extends JPanel implements Observer {
-		private static final long serialVersionUID = 1L;
-		
-		private static final int fieldHeight=5, fieldWidth=5;
-		
-		private ForestMap map;
-		
-		private void setMap(ForestMap map) {
-			this.map = map;
-			map.addObserver(this);
-		}
-
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			Graphics2D canvas = (Graphics2D)g;
-			setSize(new Dimension(fieldWidth*(Position.XMAX+1),fieldHeight*(Position.YMAX+1)));
-			canvas.setColor(Color.lightGray);
-			for(int x=0; x <= Position.XMAX+1; x++)
-				canvas.drawLine(x*fieldWidth, 0, x*fieldWidth, fieldHeight*(Position.YMAX+1));
-			for(int y=0; y <= Position.YMAX+1; y++)
-				canvas.drawLine(0, y*fieldHeight, fieldWidth*(Position.XMAX+1), y*fieldHeight);
-			Color[] colors = {Color.green, Color.darkGray, Color.black, Color.blue, Color.orange, Color.red}; 
-			for(int x = 0; x <= Position.XMAX; x++) {
-				for(int y = 0; y <= Position.YMAX; y++) {
-					if(map.sees(x, y)) {
-						canvas.setColor(colors[map.lookAtInt(x, y)]);
-						canvas.fillRect(x*fieldWidth, y*fieldHeight, fieldWidth, fieldHeight);
-					}
-				}
-			}
-		}
-
-		@Override
-		public void update(Observable o, Object arg) {
-			repaint();
-		}
 	}
 
 	private class RessourcesPanel extends JLabel implements Observer {
 		private static final long serialVersionUID = 1L;
-		
+
 		private Ressources ressources;
-		
+
 		private void setRessources(Ressources ressources) {
 			this.ressources = ressources;
 			ressources.addObserver(this);
 		}
-		
+
 		@Override
 		public void update(Observable o, Object arg) {
 			setText(ressources.toString());
@@ -149,10 +109,12 @@ public class DefaultView extends JFrame implements View, Serializable {
 	@Override
 	public void setMap(ForestMap map) {
 		grid.setMap(map);
-		scrollPane = new JScrollPane(grid, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane = new JScrollPane(grid,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 	}
-	
+
 	@Override
 	public void setName(String name) {
 		setTitle(name);
@@ -239,7 +201,7 @@ public class DefaultView extends JFrame implements View, Serializable {
 
 	@Override
 	public void disableArmy() {
-		controls.remove(armyControls);		
+		controls.remove(armyControls);
 	}
 
 	@Override

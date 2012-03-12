@@ -23,11 +23,12 @@ public class ArrayChooser extends JDialog implements Selectable {
 	
 	private JList list;
 	private JButton ok, cancel;
-	private String tmp; // only used for debugging. Delete if finished.
-	
 	public ArrayChooser(Frame owner, String title) {
 		super(owner, title, true);
-		tmp = title;
+		initialize(title);
+	}
+
+	private void initialize(String title) {
 		setLayout(new BorderLayout());
 		list = new JList();
 		ok = new JButton("Ok");
@@ -36,23 +37,18 @@ public class ArrayChooser extends JDialog implements Selectable {
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 		JPanel controls = new JPanel();
 		controls.setLayout(new FlowLayout());
-		controls.add(ok, BorderLayout.SOUTH);
-		controls.add(cancel, BorderLayout.SOUTH);
-		getContentPane().add(controls);
+		controls.add(ok, BorderLayout.EAST);
+		controls.add(cancel, BorderLayout.WEST);
+		getContentPane().add(controls, BorderLayout.SOUTH);		
 	}
 
 	public ArrayChooser(Dialog owner, String title) {
 		super(owner, title, true);
-		setLayout(new BorderLayout());
-		list = new JList();
-		JScrollPane scrollPane = new JScrollPane(list);
-		getContentPane().add(scrollPane, BorderLayout.CENTER);
-		getContentPane().add(ok, BorderLayout.SOUTH);
-		getContentPane().add(cancel, BorderLayout.SOUTH);
+		initialize(title);
 	}
 	
 	public void setData(Object[] newData) {
-		System.out.println("Data set in " + tmp);
+		System.out.println("Data set in " + getTitle());
 		list.setListData(newData);
 		System.out.println("Datalength: " + newData.length);
 	}

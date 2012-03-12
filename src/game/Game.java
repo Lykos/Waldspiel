@@ -7,12 +7,13 @@ import java.util.LinkedList;
 
 import position.Forest;
 import position.Position;
-
 import army.Army;
-
-import data.*;
-import dataLoader.DataLoader;
-import dataLoader.StupidDataLoader;
+import data.BuildingType;
+import data.People;
+import data.ResearchType;
+import data.RessourceType;
+import data.SpecialRule;
+import data.UnitType;
 
 public class Game implements Serializable, Runnable, GameDataContainer {
 	public static final long serialVersionUID = 1L;

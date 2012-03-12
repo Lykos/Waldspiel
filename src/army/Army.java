@@ -255,6 +255,11 @@ public class Army implements Serializable, Placeable {
 		}
 	}
 
+	/**
+	 * Update extreme values of the army according to a (probably) new troop.
+	 * 
+	 * @param troop The troop with the values that might be more extreme.
+	 */
 	private void updateExtrema(Troop troop) {
 		if (!troop.isEmpty()) {
 			if (troop.getMinSpeed() < speed)
